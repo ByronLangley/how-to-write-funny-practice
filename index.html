@@ -580,6 +580,8 @@ textarea {
     <h3>Exercise Complete</h3>
     <div id="cliche-summary"></div>
   </div>
+
+  <div id="cliche-history"></div>
 </div>
 
 <!-- ==================== FILTER PRACTICE ==================== -->
@@ -1163,6 +1165,36 @@ pageInit['cliche-jokes'] = function() {
     container.innerHTML += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="cliche-joke-${i}" oninput="checkClicheS1()"></div>`;
   }
   document.getElementById('cliche-s1-submit').disabled = true;
+
+  // Render past sessions
+  const all = load('clicheFreeJokes', []);
+  const historyEl = document.getElementById('cliche-history');
+  if (!all.length) { historyEl.innerHTML = ''; return; }
+  let html = '<h3 class="mt-3" style="border-top:1px solid var(--border);padding-top:1.5rem;">Past Sessions</h3>';
+  all.slice().reverse().forEach((session, ri) => {
+    const si = all.length - 1 - ri;
+    html += `<div class="entry" style="border-bottom:1px solid var(--border);padding:1rem 0;">
+      <div class="entry-meta" style="cursor:pointer;" onclick="document.getElementById('cliche-hist-${si}').classList.toggle('hidden')">
+        <strong>${session.date}</strong> — ${(session.jokes||[]).length} jokes
+      </div>
+      <div id="cliche-hist-${si}" class="hidden">`;
+    (session.jokes||[]).forEach((j, ji) => {
+      html += `<div style="padding:0.4rem 0;font-size:0.9rem;">
+        <strong>${ji+1}.</strong> ${escHtml(j.text)}
+        ${j.subtext ? `<br><span style="font-size:0.82rem;color:var(--muted);">Subtext: ${escHtml(j.subtext)}</span>` : ''}
+        <button class="secondary small" style="margin-left:0.5rem;" onclick="addToShortList('${escAttr(j.text)}','${escAttr(j.subtext||'')}',[],'cliche-free jokes');this.textContent='Added';this.disabled=true;">Short List</button>
+      </div>`;
+    });
+    if (session.rawSubtexts && session.rawSubtexts.filter(s=>s).length) {
+      html += `<p style="font-size:0.85rem;color:var(--muted);margin-top:0.75rem;"><strong>Raw Subtexts:</strong></p>`;
+      session.rawSubtexts.forEach((s, i) => {
+        if (s) html += `<p style="font-size:0.85rem;color:var(--muted);padding-left:1rem;">${i+1}. ${escHtml(s)}</p>`;
+      });
+    }
+    html += `<div class="mt-1"><button class="secondary small" onclick="openCritique(${JSON.stringify(session.jokes||[]).split('"').join('&quot;')})">Get Claude's Critique</button></div>`;
+    html += `</div></div>`;
+  });
+  historyEl.innerHTML = html;
 };
 
 function checkClicheS1() {
