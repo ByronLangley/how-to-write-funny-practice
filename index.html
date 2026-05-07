@@ -411,11 +411,51 @@ textarea {
   h1 { font-size: 1.5rem; }
   .stat-bar { gap: 1rem; flex-wrap: wrap; }
 }
+#page-auth input[type="email"],
+#page-auth input[type="password"] {
+  display: block;
+  width: 100%;
+}
+
+#sync-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  min-height: 1.5rem;
+}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
+
+<div id="sync-indicator">
+  <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;" title="Not synced"></span>
+  <span id="sync-info" style="font-size:0.78rem;color:var(--muted);"></span>
+</div>
+
+<!-- ==================== AUTH ==================== -->
+<div id="page-auth" class="page">
+  <h1>How to Write Funny</h1>
+  <p class="subtitle">Practice tools based on Scott Dikkers' book</p>
+  <div style="max-width:360px;margin:2rem auto;">
+    <div id="auth-form">
+      <input type="email" id="auth-email" placeholder="Email" style="margin-bottom:0.75rem;">
+      <input type="password" id="auth-password" placeholder="Password" style="margin-bottom:0.75rem;">
+      <div id="auth-error" style="color:var(--danger);font-size:0.82rem;margin-bottom:0.75rem;display:none;"></div>
+      <button onclick="authLogin()" style="width:100%;margin-bottom:0.5rem;">Log In</button>
+      <button class="secondary" onclick="authSignup()" style="width:100%;">Create Account</button>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:1rem;text-align:center;">
+        Or <a style="cursor:pointer;text-decoration:underline;" onclick="skipAuth()">continue without an account</a> (data stays in this browser only)
+      </p>
+    </div>
+  </div>
+</div>
 
 <!-- ==================== HOME ==================== -->
 <div id="page-home" class="page active">
@@ -451,12 +491,16 @@ textarea {
 <div id="page-settings" class="page">
   <a class="back-link" onclick="showPage('home')">Home</a>
   <h2>Settings</h2>
+  <div class="api-key-section" style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Cloud Account</h3>
+    <div id="settings-cloud-info"></div>
+  </div>
   <div class="api-key-section">
     <label style="font-size:0.9rem;">Anthropic API Key (for Critique Mode)</label>
     <input type="text" id="settings-api-key" placeholder="sk-ant-..." oninput="saveSettings()">
     <p style="font-size:0.78rem; color:var(--muted); margin-top:0.5rem;">Your key is stored in localStorage on this device only. It is sent directly to the Anthropic API and nowhere else.</p>
   </div>
-  <button class="danger small" onclick="if(confirm('This will erase all your data. Are you sure?')){localStorage.clear();location.reload();}">Clear All Data</button>
+  <button class="danger small" onclick="clearAllData()">Clear All Data</button>
 </div>
 
 <!-- ==================== MORNING PAGES ==================== -->
@@ -614,15 +658,189 @@ textarea {
 
 <script>
 // ===========================
-// DATA LAYER
+// FIREBASE INIT
 // ===========================
+firebase.initializeApp({
+  apiKey: "AIzaSyCc-zNF8VqL3WC2tA7P1FAq7iZYuowMucQ",
+  authDomain: "how-to-write-funny.firebaseapp.com",
+  projectId: "how-to-write-funny",
+  storageBucket: "how-to-write-funny.firebasestorage.app",
+  messagingSenderId: "427715215043",
+  appId: "1:427715215043:web:406085ba6b250ecb1f2c76"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ===========================
+// DATA LAYER (localStorage + Firestore)
+// ===========================
+const DATA_KEYS = ['morningPages','clicheFreeJokes','filterPractice','methodPractice','shortList','dailyLog','settings'];
+let currentUser = null;
+
 function load(key, fallback) {
   try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : fallback; }
   catch(e) { return fallback; }
 }
-function save(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+function save(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+  debouncedSaveToCloud();
+}
 function todayStr() { return new Date().toISOString().slice(0,10); }
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// --- Cloud sync ---
+let _saveTimer = null;
+function debouncedSaveToCloud() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => saveToCloud(), 2000);
+}
+
+async function saveToCloud() {
+  if (!currentUser) return;
+  setSyncStatus('saving');
+  try {
+    const allData = {};
+    DATA_KEYS.forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v) allData[k] = JSON.parse(v);
+    });
+    // Never sync API keys to cloud
+    if (allData.settings) {
+      allData.settings = { ...allData.settings };
+      delete allData.settings.claudeApiKey;
+    }
+    await db.collection('user_data').doc(currentUser.uid).set({
+      data: allData,
+      updated_at: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    setSyncStatus('saved');
+  } catch(e) {
+    console.error('Cloud save failed:', e);
+    setSyncStatus('error');
+  }
+}
+
+async function loadFromCloud() {
+  if (!currentUser) return;
+  setSyncStatus('loading');
+  try {
+    const doc = await db.collection('user_data').doc(currentUser.uid).get();
+    if (doc.exists && doc.data().data) {
+      const cloudData = doc.data().data;
+      Object.keys(cloudData).forEach(k => {
+        if (k === 'settings') {
+          const localSettings = load('settings', {});
+          const cloudSettings = cloudData[k];
+          localStorage.setItem(k, JSON.stringify({
+            ...cloudSettings,
+            claudeApiKey: localSettings.claudeApiKey || ''
+          }));
+        } else {
+          localStorage.setItem(k, JSON.stringify(cloudData[k]));
+        }
+      });
+      setSyncStatus('saved');
+    } else {
+      // No cloud data yet — push localStorage up
+      await saveToCloud();
+    }
+  } catch(e) {
+    console.error('Cloud load failed:', e);
+    setSyncStatus('error');
+  }
+}
+
+function setSyncStatus(status) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  if (status === 'saving') { dot.style.background = '#d4a017'; dot.title = 'Saving...'; }
+  else if (status === 'saved') { dot.style.background = '#4a7c59'; dot.title = 'Synced'; }
+  else if (status === 'loading') { dot.style.background = '#4a7c9e'; dot.title = 'Loading...'; }
+  else if (status === 'error') { dot.style.background = '#8b3a3a'; dot.title = 'Sync error'; }
+}
+
+// ===========================
+// AUTH
+// ===========================
+async function authLogin() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  showAuthError('');
+  try {
+    const cred = await auth.signInWithEmailAndPassword(email, password);
+    currentUser = cred.user;
+    await loadFromCloud();
+    showPage('home');
+    renderHome();
+    updateAuthUI();
+  } catch(e) {
+    showAuthError(e.message);
+  }
+}
+
+async function authSignup() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  showAuthError('');
+  if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    currentUser = cred.user;
+    await saveToCloud();
+    showPage('home');
+    renderHome();
+    updateAuthUI();
+  } catch(e) {
+    showAuthError(e.message);
+  }
+}
+
+async function authLogout() {
+  await auth.signOut();
+  currentUser = null;
+  updateAuthUI();
+}
+
+let authSkipped = false;
+function skipAuth() {
+  authSkipped = true;
+  document.getElementById('page-auth').classList.remove('active');
+  showPage('home');
+  updateAuthUI();
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function updateAuthUI() {
+  const info = document.getElementById('sync-info');
+  const dot = document.getElementById('sync-dot');
+  if (currentUser) {
+    info.innerHTML = currentUser.email + ' <a style="cursor:pointer;text-decoration:underline;font-size:0.78rem;color:var(--muted);" onclick="authLogout()">log out</a>';
+    dot.style.display = 'inline-block';
+  } else {
+    info.innerHTML = 'Local only. <a style="cursor:pointer;text-decoration:underline;font-size:0.78rem;color:var(--muted);" onclick="showAuthPage()">Log in</a>';
+    dot.style.background = 'var(--muted)';
+    dot.style.display = 'inline-block';
+  }
+}
+
+function showAuthPage() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-auth').classList.add('active');
+}
+
+async function clearAllData() {
+  if (!confirm('This will erase all your data. Are you sure?')) return;
+  if (currentUser) {
+    try { await db.collection('user_data').doc(currentUser.uid).delete(); } catch(e) {}
+  }
+  localStorage.clear();
+  location.reload();
+}
 
 // ===========================
 // FILTERS DATA
@@ -1592,6 +1810,15 @@ Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast
 pageInit['settings'] = function() {
   const settings = load('settings', {});
   document.getElementById('settings-api-key').value = settings.claudeApiKey || '';
+  const cloudInfo = document.getElementById('settings-cloud-info');
+  if (currentUser) {
+    cloudInfo.innerHTML = '<p style="font-size:0.88rem;">Logged in as <strong>' + escHtml(currentUser.email) + '</strong></p>' +
+      '<div class="gap-sm mt-1"><button class="secondary small" onclick="saveToCloud().then(()=>alert(\'Synced.\'))">Force sync now</button>' +
+      '<button class="secondary small" onclick="authLogout()">Log out</button></div>';
+  } else {
+    cloudInfo.innerHTML = '<p style="font-size:0.88rem;color:var(--muted);">Not logged in. Data is stored locally only.</p>' +
+      '<button class="small mt-1" onclick="showAuthPage()">Log in or create account</button>';
+  }
 };
 
 function saveSettings() {
@@ -1656,7 +1883,31 @@ function escAttr(str) {
 // ===========================
 // INIT
 // ===========================
-renderHome();
+(async function init() {
+  // Render immediately from localStorage
+  renderHome();
+  // Check for existing Firebase session
+  auth.onAuthStateChanged(async function(user) {
+    if (user) {
+      currentUser = user;
+      await loadFromCloud();
+      renderHome();
+      updateAuthUI();
+      // If auth page is showing, go to home
+      if (document.getElementById('page-auth').classList.contains('active')) {
+        showPage('home');
+      }
+    } else {
+      currentUser = null;
+      updateAuthUI();
+      // Show auth page on first load if not logged in and not skipped
+      if (!authSkipped) {
+        document.getElementById('page-home').classList.remove('active');
+        document.getElementById('page-auth').classList.add('active');
+      }
+    }
+  });
+})();
 </script>
 
 </body>
