@@ -139,6 +139,27 @@ textarea {
   font-size: 0.85rem;
 }
 
+.home-section {
+  margin-bottom: 2rem;
+}
+.home-section-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (max-width: 600px) {
+  .home-grid { grid-template-columns: 1fr; }
+}
+
 .guardrail {
   background: var(--highlight);
   border-left: 3px solid var(--muted);
@@ -1079,16 +1100,31 @@ const TIPS = [
 // ===========================
 // NAVIGATION
 // ===========================
-const HOME_CARDS = [
-  {id:'morning-pages', title:'Morning Pages', desc:'Write today\'s pages', icon:''},
-  {id:'review-mp', title:'Review Morning Pages', desc:'Read past entries, reflect', icon:''},
-  {id:'cliche-jokes', title:'Ten Cliche-Free Jokes', desc:'Chapter 4 exercise + Chapter 5 Subtext follow-up', icon:''},
-  {id:'filter-practice', title:'Eleven-Day Funny Filter Practice', desc:'One filter per day for 11 days', icon:''},
-  {id:'methods', title:'Joke-Writing Methods', desc:'Filtering, Finessing, Divining', icon:''},
-  {id:'filters-ref', title:'Funny Filters Reference', desc:'Browse all 11 filters with examples', icon:''},
-  {id:'tips', title:'Humor-Writing Tips', desc:'Browse all 18 tips', icon:''},
-  {id:'shortlist', title:'Short List', desc:'Saved jokes you\'re still working on', icon:''},
-  {id:'checklist', title:'Daily Checklist', desc:'Streak tracker for core habits', icon:''},
+const HOME_SECTIONS = [
+  {
+    label: 'Practice',
+    cards: [
+      {id:'morning-pages', title:'Morning Pages', desc:'Write today\'s pages'},
+      {id:'cliche-jokes', title:'Ten Cliche-Free Jokes', desc:'Chapter 4 exercise + Chapter 5 Subtext follow-up'},
+      {id:'filter-practice', title:'Eleven-Day Funny Filter Practice', desc:'One filter per day for 11 days'},
+      {id:'methods', title:'Joke-Writing Methods', desc:'Filtering, Finessing, Divining'},
+    ]
+  },
+  {
+    label: 'Reference',
+    cards: [
+      {id:'filters-ref', title:'Funny Filters Reference', desc:'Browse all 11 filters with examples'},
+      {id:'tips', title:'Humor-Writing Tips', desc:'Browse all 18 tips'},
+    ]
+  },
+  {
+    label: 'Review',
+    cards: [
+      {id:'review-mp', title:'Review Morning Pages', desc:'Read past entries, mine for ideas'},
+      {id:'shortlist', title:'Short List', desc:'Saved jokes you\'re still working on'},
+      {id:'checklist', title:'Daily Checklist', desc:'Streak tracker for core habits'},
+    ]
+  },
 ];
 
 function showPage(id) {
@@ -1108,8 +1144,13 @@ const pageInit = {};
 // ===========================
 function renderHome() {
   const container = document.getElementById('home-cards');
-  container.innerHTML = HOME_CARDS.map(c =>
-    `<div class="card" onclick="showPage('${c.id}')"><h3>${c.title}</h3><p class="card-desc">${c.desc}</p></div>`
+  container.innerHTML = HOME_SECTIONS.map(section =>
+    `<div class="home-section">
+      <h2 class="home-section-label">${section.label}</h2>
+      <div class="home-grid">${section.cards.map(c =>
+        `<div class="card" onclick="showPage('${c.id}')"><h3>${c.title}</h3><p class="card-desc">${c.desc}</p></div>`
+      ).join('')}</div>
+    </div>`
   ).join('');
 
   document.getElementById('home-streak').textContent = calcStreak();
