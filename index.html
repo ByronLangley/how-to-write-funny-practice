@@ -482,6 +482,42 @@ textarea {
 #mine-modal-body .mine-line.highlight {
   background: #fff3cd;
 }
+
+#session-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+#session-modal-overlay.active { display: flex; }
+#session-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+#session-modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#session-modal-header h3 { margin: 0; }
+#session-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -714,6 +750,16 @@ textarea {
 </div>
 
 </div><!-- end container -->
+
+<div id="session-modal-overlay" onclick="if(event.target===this)closeSessionModal()">
+  <div id="session-modal">
+    <div id="session-modal-header">
+      <h3 id="session-modal-title"></h3>
+      <button class="secondary small" onclick="closeSessionModal()">Close</button>
+    </div>
+    <div id="session-modal-body"></div>
+  </div>
+</div>
 
 <div id="mine-modal-overlay" onclick="if(event.target===this)closeMineModal()">
   <div id="mine-modal">
@@ -1197,7 +1243,7 @@ pageInit['review-mp'] = function() {
     const mins = Math.round(p.durationMs / 60000);
     return `<div class="entry">
       <div class="entry-meta flex-between">
-        <span>${p.title ? escHtml(p.title) + ' — ' : ''}${p.date} — ${p.wordCount} words, ${mins} min</span>
+        <span style="cursor:pointer;" onclick="viewMorningPage(${i})">${p.title ? escHtml(p.title) + ' — ' : ''}${p.date} — ${p.wordCount} words, ${mins} min</span>
         <span>
           <button class="secondary small" onclick="mineFromMP(${i})">Mine for ideas</button>
           <button class="secondary small" style="margin-left:0.5rem;color:var(--danger,#c0392b)" onclick="deleteMorningPage(${i})">Delete</button>
@@ -1206,6 +1252,16 @@ pageInit['review-mp'] = function() {
     </div>`;
   }).join('');
 };
+
+function viewMorningPage(idx) {
+  const pages = load('morningPages', []);
+  const p = pages[idx];
+  const heading = (p.title ? p.title + ' — ' : '') + p.date;
+  const mins = Math.round(p.durationMs / 60000);
+  let body = `<p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">${p.wordCount} words, ${mins} min</p>`;
+  body += `<div style="white-space:pre-wrap;line-height:1.7;">${escHtml(p.text)}</div>`;
+  openSessionModal(heading, body);
+}
 
 let mineModalLines = [];
 
@@ -1260,6 +1316,16 @@ function closeMineModal() {
   document.getElementById('mine-modal-overlay').classList.remove('active');
 }
 
+function openSessionModal(title, bodyHtml) {
+  document.getElementById('session-modal-title').textContent = title;
+  document.getElementById('session-modal-body').innerHTML = bodyHtml;
+  document.getElementById('session-modal-overlay').classList.add('active');
+}
+
+function closeSessionModal() {
+  document.getElementById('session-modal-overlay').classList.remove('active');
+}
+
 function deleteMorningPage(idx) {
   if (!confirm('Delete this Morning Pages entry? This cannot be undone.')) return;
   const pages = load('morningPages', []);
@@ -1296,26 +1362,13 @@ pageInit['cliche-jokes'] = function() {
   let html = '<h3 class="mt-3" style="border-top:1px solid var(--border);padding-top:1.5rem;">Past Sessions</h3>';
   all.slice().reverse().forEach((session, ri) => {
     const si = all.length - 1 - ri;
+    const label = session.title ? escHtml(session.title) + ' — ' + session.date : session.date;
     html += `<div class="entry" style="border-bottom:1px solid var(--border);padding:1rem 0;">
-      <div class="entry-meta" style="cursor:pointer;" onclick="document.getElementById('cliche-hist-${si}').classList.toggle('hidden')">
-        <strong>${session.date}</strong> — ${(session.jokes||[]).length} jokes
+      <div class="entry-meta flex-between">
+        <span style="cursor:pointer;" onclick="viewClicheSession(${si})"><strong>${label}</strong> — ${(session.jokes||[]).length} jokes</span>
+        <button class="secondary small" style="color:var(--danger,#c0392b)" onclick="deleteClicheSession(${si})">Delete</button>
       </div>
-      <div id="cliche-hist-${si}" class="hidden">`;
-    (session.jokes||[]).forEach((j, ji) => {
-      html += `<div style="padding:0.4rem 0;font-size:0.9rem;">
-        <strong>${ji+1}.</strong> ${escHtml(j.text)}
-        ${j.subtext ? `<br><span style="font-size:0.82rem;color:var(--muted);">Subtext: ${escHtml(j.subtext)}</span>` : ''}
-        <button class="secondary small" style="margin-left:0.5rem;" onclick="addToShortList('${escAttr(j.text)}','${escAttr(j.subtext||'')}',[],'cliche-free jokes');this.textContent='Added';this.disabled=true;">Short List</button>
-      </div>`;
-    });
-    if (session.rawSubtexts && session.rawSubtexts.filter(s=>s).length) {
-      html += `<p style="font-size:0.85rem;color:var(--muted);margin-top:0.75rem;"><strong>Raw Subtexts:</strong></p>`;
-      session.rawSubtexts.forEach((s, i) => {
-        if (s) html += `<p style="font-size:0.85rem;color:var(--muted);padding-left:1rem;">${i+1}. ${escHtml(s)}</p>`;
-      });
-    }
-    html += `<div class="mt-1"><button class="secondary small" onclick="openCritique(${JSON.stringify(session.jokes||[]).split('"').join('&quot;')})">Get Claude's Critique</button></div>`;
-    html += `</div></div>`;
+    </div>`;
   });
   historyEl.innerHTML = html;
 };
@@ -1326,6 +1379,35 @@ function checkClicheS1() {
     if (!document.getElementById('cliche-joke-'+i).value.trim()) { allFilled = false; break; }
   }
   document.getElementById('cliche-s1-submit').disabled = !allFilled;
+}
+
+function viewClicheSession(idx) {
+  const all = load('clicheFreeJokes', []);
+  const session = all[idx];
+  const label = session.title ? escHtml(session.title) + ' — ' + session.date : session.date;
+  let body = '';
+  (session.jokes||[]).forEach((j, ji) => {
+    body += `<div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <strong>${ji+1}.</strong> ${escHtml(j.text)}
+      ${j.subtext ? `<br><span style="font-size:0.82rem;color:var(--muted);">Subtext: ${escHtml(j.subtext)}</span>` : ''}
+      <button class="secondary small" style="margin-left:0.5rem;" onclick="addToShortList('${escAttr(j.text)}','${escAttr(j.subtext||'')}',[],'cliche-free jokes');this.textContent='Added';this.disabled=true;">Short List</button>
+    </div>`;
+  });
+  if (session.rawSubtexts && session.rawSubtexts.filter(s=>s).length) {
+    body += `<p style="margin-top:1rem;"><strong>Raw Subtexts:</strong></p>`;
+    session.rawSubtexts.forEach((s, i) => {
+      if (s) body += `<p style="font-size:0.85rem;color:var(--muted);padding-left:1rem;">${i+1}. ${escHtml(s)}</p>`;
+    });
+  }
+  openSessionModal(label, body);
+}
+
+function deleteClicheSession(idx) {
+  if (!confirm('Delete this session? This cannot be undone.')) return;
+  const all = load('clicheFreeJokes', []);
+  all.splice(idx, 1);
+  save('clicheFreeJokes', all);
+  pageInit['cliche-jokes']();
 }
 
 function submitClicheStage1() {
@@ -1365,8 +1447,9 @@ function submitClicheStage3() {
     rawSubtexts.push(document.getElementById('cliche-raw-sub-'+i).value.trim());
   }
 
+  const title = prompt('Give this session a title (or leave blank):') || '';
   const jokes = clicheSessionJokes.map((t, i) => ({text: t, subtext: clicheSessionSubtexts[i]}));
-  const entry = {date: todayStr(), jokes, rawSubtexts, timestamp: Date.now()};
+  const entry = {date: todayStr(), title: title.trim(), jokes, rawSubtexts, timestamp: Date.now()};
   const all = load('clicheFreeJokes', []);
   all.push(entry);
   save('clicheFreeJokes', all);
@@ -1411,9 +1494,10 @@ function renderFilterPracticeOverview() {
   FILTERS.forEach((f, i) => {
     const dayData = (fp.days || []).find(d => d.day === i+1);
     const done = dayData && dayData.completedAt;
-    const status = done ? '<span style="color:var(--streak);">Complete</span>' : (i === completedDays ? '<strong>Current</strong>' : '');
+    const titleLabel = done && dayData.title ? escHtml(dayData.title) + ' — ' : '';
+    const status = done ? `<span style="font-size:0.82rem;color:var(--streak);cursor:pointer;" onclick="event.stopPropagation();viewFilterDay(${i+1})">View session</span>` : (i === completedDays ? '<strong style="font-size:0.82rem;">Current</strong>' : '');
     html += `<div class="card" onclick="startFilterDay(${i+1})">
-      <div class="flex-between"><h3>Day ${i+1} — ${f.name}</h3><span style="font-size:0.82rem;">${status}</span></div>
+      <div class="flex-between"><h3>Day ${i+1} — ${titleLabel}${f.name}</h3>${status}</div>
       <p class="card-desc">${f.what}</p>
     </div>`;
   });
@@ -1473,15 +1557,37 @@ function saveFilterDayDraft(dayNum) {
 }
 
 function saveFilterDay(dayNum) {
+  const title = prompt('Give this session a title (or leave blank):') || '';
   const fp = load('filterPractice', {startDate: todayStr(), days: []});
   let dayData = fp.days.find(d => d.day === dayNum);
   const jokes = [];
   for (let i = 0; i < 10; i++) jokes.push(document.getElementById('fp-joke-'+i).value.trim());
-  if (!dayData) { dayData = {day: dayNum, filter: FILTERS[dayNum-1].name, jokes, completedAt: todayStr()}; fp.days.push(dayData); }
-  else { dayData.jokes = jokes; dayData.completedAt = todayStr(); }
+  if (!dayData) { dayData = {day: dayNum, filter: FILTERS[dayNum-1].name, jokes, completedAt: todayStr(), title: title.trim()}; fp.days.push(dayData); }
+  else { dayData.jokes = jokes; dayData.completedAt = todayStr(); dayData.title = title.trim(); }
   save('filterPractice', fp);
   jokes.filter(j=>j).forEach(() => logActivity('joke'));
   renderFilterPracticeOverview();
+}
+
+function viewFilterDay(dayNum) {
+  const fp = load('filterPractice', {startDate: null, days: []});
+  const dayData = (fp.days || []).find(d => d.day === dayNum);
+  if (!dayData) return;
+  const filter = FILTERS[dayNum - 1];
+  const titleLabel = dayData.title ? dayData.title + ' — ' : '';
+  const heading = titleLabel + 'Day ' + dayNum + ' — ' + filter.name;
+  let body = '';
+  (dayData.jokes || []).forEach((j, ji) => {
+    if (!j) return;
+    body += `<div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <strong>${ji+1}.</strong> ${escHtml(j)}
+      <button class="secondary small" style="margin-left:0.5rem;" onclick="addToShortList('${escAttr(j)}','',['${filter.name}'],'filter-practice');this.textContent='Added';this.disabled=true;">Short List</button>
+    </div>`;
+  });
+  if (dayData.completedAt) {
+    body += `<p style="font-size:0.82rem;color:var(--muted);margin-top:1rem;">Completed: ${dayData.completedAt}</p>`;
+  }
+  openSessionModal(heading, body);
 }
 
 // ===========================
@@ -1542,12 +1648,17 @@ function activateFilterForFiltering(idx) {
 }
 
 function saveFilteringAttempts(filterName) {
+  const newAttempts = [];
   for (let i = 1; i <= 3; i++) {
     const v = document.getElementById('filtering-attempt-'+i).value.trim();
     if (v) {
-      filteringAttempts.push({text: v, filter: filterName, subtext: document.getElementById('filtering-subtext').value.trim()});
+      newAttempts.push({text: v, filter: filterName, subtext: document.getElementById('filtering-subtext').value.trim()});
     }
   }
+  if (!newAttempts.length) return;
+  const title = prompt('Give this session a title (or leave blank):') || '';
+  newAttempts.forEach(a => { a.title = title.trim(); });
+  filteringAttempts.push(...newAttempts);
   document.getElementById('filtering-workspace').innerHTML = '<p style="color:var(--streak);font-size:0.85rem;">Saved. Pick another filter or review below.</p>';
 
   const display = document.getElementById('filtering-all-attempts');
@@ -1613,9 +1724,10 @@ function saveFinessing() {
   const revised = document.getElementById('finessing-revised').value.trim();
   const original = document.getElementById('finessing-joke').value.trim();
   if (!revised) { alert('Write a revised version first.'); return; }
+  const title = prompt('Give this session a title (or leave blank):') || '';
   addToShortList(revised, '', [], 'finessing (from: ' + original.slice(0,50) + ')');
   const mp = load('methodPractice', {filtering:[],finessing:[],divining:[]});
-  mp.finessing.push({original, revised, date: todayStr()});
+  mp.finessing.push({original, revised, title: title.trim(), date: todayStr()});
   save('methodPractice', mp);
   logActivity('joke');
   alert('Saved to Short List.');
@@ -1665,9 +1777,10 @@ function saveDivining() {
     if (v) attempts.push(v);
   }
   if (!attempts.length) return;
+  const title = prompt('Give this session a title (or leave blank):') || '';
   const mp = load('methodPractice', {filtering:[],finessing:[],divining:[]});
   attempts.forEach(a => {
-    mp.divining.push({text: a, filter: currentDiviningFilter.name, date: todayStr()});
+    mp.divining.push({text: a, filter: currentDiviningFilter.name, title: title.trim(), date: todayStr()});
     logActivity('joke');
   });
   save('methodPractice', mp);
