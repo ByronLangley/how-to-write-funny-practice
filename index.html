@@ -1100,10 +1100,11 @@ function stopMorningPages() {
 function saveMorningPages() {
   const text = document.getElementById('mp-textarea').value;
   if (!text.trim()) return;
+  const title = prompt('Give this entry a title (or leave blank):') || '';
   const words = text.trim().split(/\s+/).filter(w=>w).length;
   const duration = Date.now() - mpStartTime;
   const pages = load('morningPages', []);
-  pages.push({date: todayStr(), text, wordCount: words, durationMs: duration, timestamp: Date.now()});
+  pages.push({date: todayStr(), title: title.trim(), text, wordCount: words, durationMs: duration, timestamp: Date.now()});
   save('morningPages', pages);
   logActivity('morningPages');
   clearInterval(mpTimer);
@@ -1126,7 +1127,7 @@ pageInit['review-mp'] = function() {
     const mins = Math.round(p.durationMs / 60000);
     return `<div class="entry">
       <div class="entry-meta flex-between">
-        <span>${p.date} — ${p.wordCount} words, ${mins} min</span>
+        <span>${p.title ? escHtml(p.title) + ' — ' : ''}${p.date} — ${p.wordCount} words, ${mins} min</span>
         <button class="secondary small" onclick="mineFromMP(${i})">Mine for ideas</button>
       </div>
       <div class="entry-text" id="mp-entry-${i}" onclick="this.classList.toggle('expanded')">${escHtml(p.text)}</div>
