@@ -1301,7 +1301,16 @@ function viewMorningPage(idx) {
   const mins = Math.round(p.durationMs / 60000);
   let body = `<p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">${p.wordCount} words, ${mins} min</p>`;
   body += `<div style="white-space:pre-wrap;line-height:1.7;">${escHtml(p.text)}</div>`;
+  body += `<div class="mt-2"><button class="secondary" onclick="closeSessionModal();critiqueMP(${idx})">Get Claude's Critique</button></div>`;
   openSessionModal(heading, body);
+}
+
+function critiqueMP(idx) {
+  const pages = load('morningPages', []);
+  const p = pages[idx];
+  const lines = p.text.split(/\n+/).filter(l => l.trim());
+  const jokes = lines.map(l => ({text: l.trim(), subtext: ''}));
+  openCritique(jokes);
 }
 
 let mineModalLines = [];
@@ -1431,7 +1440,14 @@ function viewClicheSession(idx) {
       if (s) body += `<p style="font-size:0.85rem;color:var(--muted);padding-left:1rem;">${i+1}. ${escHtml(s)}</p>`;
     });
   }
+  body += `<div class="mt-2"><button class="secondary" onclick="closeSessionModal();critiqueClicheSession(${idx})">Get Claude's Critique</button></div>`;
   openSessionModal(label, body);
+}
+
+function critiqueClicheSession(idx) {
+  const all = load('clicheFreeJokes', []);
+  const session = all[idx];
+  openCritique(session.jokes || []);
 }
 
 function deleteClicheSession(idx) {
@@ -1621,7 +1637,16 @@ function viewFilterDay(dayNum) {
   if (dayData.completedAt) {
     body += `<p style="font-size:0.82rem;color:var(--muted);margin-top:1rem;">Completed: ${dayData.completedAt}</p>`;
   }
+  body += `<div class="mt-2"><button class="secondary" onclick="closeSessionModal();critiqueFilterDay(${dayNum})">Get Claude's Critique</button></div>`;
   openSessionModal(heading, body);
+}
+
+function critiqueFilterDay(dayNum) {
+  const fp = load('filterPractice', {startDate: null, days: []});
+  const dayData = (fp.days || []).find(d => d.day === dayNum);
+  if (!dayData) return;
+  const jokes = (dayData.jokes || []).filter(j => j).map(j => ({text: j, subtext: ''}));
+  openCritique(jokes);
 }
 
 // ===========================
