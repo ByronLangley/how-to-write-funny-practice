@@ -2033,7 +2033,8 @@ For each joke, output:
 2. FILTERS: name the Funny Filters in play (Irony, Character, Shock, Hyperbole, Wordplay, Reference, Madcap, Parody, Analogy, Misplaced Focus, Metahumor). If zero, that's a problem.
 3. WORKING: what's working briefly.
 4. FAILING: specific failures — cliche topic, cliche phrasing, no Subtext, weak Subtext, sarcasm masquerading as Irony, switcheroo masquerading as Irony, stereotype masquerading as Archetype, gratuitous Shock, ungrounded Hyperbole (still inside possibility), groaner Wordplay (no Subtext), pun working only one way, dud Reference (in-joke or lazy current event), Madcap with no Subtext, half-baked Parody, Analogy with the wrong half hidden, Misplaced Focus that doesn't actually misplace, Metahumor that just announces itself, two impossible things, funny part not last, comforting the comfortable / afflicting the afflicted, winking at the reader, broken voice, word bloat, typos.
-5. SUGGESTION: one or two specific rewrite directions. Don't write the joke for the user — point at the problem.
+5. SUGGESTION: one or two specific rewrite directions. Point at the problem clearly.
+6. EXAMPLE REWRITE: provide one concrete example of how the joke could be reworded to fix the identified issue — whether that's removing a cliche, sharpening the Subtext, strengthening the Filter, tightening the phrasing, or any other failure. This is a demonstration, not a final draft. The user will use it as a starting point.
 
 Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast" or "this is a Switcheroo, not Irony"). No vague praise. No participation trophies.`;
 
@@ -2048,7 +2049,7 @@ Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{
           role: 'user',
