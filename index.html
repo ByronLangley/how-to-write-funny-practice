@@ -1303,6 +1303,7 @@ function viewMorningPage(idx) {
   let body = `<p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">${p.wordCount} words, ${mins} min</p>`;
   body += `<div style="white-space:pre-wrap;line-height:1.7;">${escHtml(p.text)}</div>`;
   body += `<div class="mt-2"><button class="secondary" onclick="closeSessionModal();critiqueMP(${idx})">Get Claude's Critique</button></div>`;
+  // Morning pages critique has no apply target (freeform text)
   openSessionModal(heading, body);
 }
 
@@ -1451,7 +1452,7 @@ function viewClicheSession(idx) {
 function critiqueClicheSession(idx) {
   const all = load('clicheFreeJokes', []);
   const session = all[idx];
-  openCritique(session.jokes || []);
+  openCritique(session.jokes || [], {type: 'clicheFreeJokes', idx: idx});
 }
 
 function deleteClicheSession(idx) {
@@ -1521,7 +1522,7 @@ function submitClicheStage3() {
       <button class="secondary small mt-1" onclick="addToShortList('${escAttr(j.text)}','${escAttr(j.subtext)}',[],'cliche-free jokes');this.textContent='Added';this.disabled=true;">Send to Short List</button>
     </div>`;
   });
-  html += `<div class="mt-2"><button class="secondary" onclick="openCritique(${JSON.stringify(jokes).split('"').join('&quot;')})">Get Claude's Critique</button></div>`;
+  html += `<div class="mt-2"><button class="secondary" onclick="critiqueClicheSession(${all.length - 1})">Get Claude's Critique</button></div>`;
   document.getElementById('cliche-summary').innerHTML = html;
   window.scrollTo(0, 0);
 }
@@ -1650,7 +1651,7 @@ function critiqueFilterDay(dayNum) {
   const dayData = (fp.days || []).find(d => d.day === dayNum);
   if (!dayData) return;
   const jokes = (dayData.jokes || []).filter(j => j).map(j => ({text: j, subtext: ''}));
-  openCritique(jokes);
+  openCritique(jokes, {type: 'filterPractice', dayNum: dayNum});
 }
 
 // ===========================
@@ -1977,7 +1978,7 @@ function finesseFromShortList(id) {
 function openCritiqueById(id) {
   const sl = load('shortList', []);
   const item = sl.find(s => s.id === id);
-  if (item) openCritique([{text: item.text, subtext: item.subtext || ''}]);
+  if (item) openCritique([{text: item.text, subtext: item.subtext || ''}], {type: 'shortList', id: id});
 }
 
 function exportShortList() {
@@ -2055,7 +2056,7 @@ function updateChecklist() {
 // ===========================
 // CRITIQUE MODE
 // ===========================
-function openCritique(jokes) {
+function openCritique(jokes, source) {
   showPage('critique');
   const container = document.getElementById('critique-content');
 
@@ -2075,8 +2076,8 @@ function openCritique(jokes) {
   html += `<div id="critique-result-area"></div>`;
   container.innerHTML = html;
 
-  // stash jokes for the API call
   window._critiqueJokes = jokes;
+  window._critiqueSource = source || null;
 }
 
 async function runCritique() {
@@ -2091,15 +2092,18 @@ async function runCritique() {
 
   const systemPrompt = `You are a comedy-writing coach trained on Scott Dikkers' How to Write Funny. Critique the user's jokes against the book's principles. Push back hard on weak work — this is what the user explicitly wants.
 
-For each joke, output:
-1. SUBTEXT: state the Subtext as one irreducible subject-verb-object sentence. If you can't, that's the first problem.
-2. FILTERS: name the Funny Filters in play (Irony, Character, Shock, Hyperbole, Wordplay, Reference, Madcap, Parody, Analogy, Misplaced Focus, Metahumor). If zero, that's a problem.
-3. WORKING: what's working briefly.
-4. FAILING: specific failures — cliche topic, cliche phrasing, no Subtext, weak Subtext, sarcasm masquerading as Irony, switcheroo masquerading as Irony, stereotype masquerading as Archetype, gratuitous Shock, ungrounded Hyperbole (still inside possibility), groaner Wordplay (no Subtext), pun working only one way, dud Reference (in-joke or lazy current event), Madcap with no Subtext, half-baked Parody, Analogy with the wrong half hidden, Misplaced Focus that doesn't actually misplace, Metahumor that just announces itself, two impossible things, funny part not last, comforting the comfortable / afflicting the afflicted, winking at the reader, broken voice, word bloat, typos.
-5. SUGGESTION: one or two specific rewrite directions. Point at the problem clearly.
-6. EXAMPLE REWRITE: provide one concrete example of how the joke could be reworded to fix the identified issue — whether that's removing a cliche, sharpening the Subtext, strengthening the Filter, tightening the phrasing, or any other failure. This is a demonstration, not a final draft. The user will use it as a starting point.
+Return a JSON array with one object per joke. Each object must have these fields:
+- "original": the original joke text (echoed back exactly)
+- "subtext": the Subtext as one irreducible subject-verb-object sentence. If you can't state one, say why.
+- "filters": the Funny Filters in play (Irony, Character, Shock, Hyperbole, Wordplay, Reference, Madcap, Parody, Analogy, Misplaced Focus, Metahumor). If zero, say so.
+- "working": what's working, briefly.
+- "failing": specific failures — cliche topic, cliche phrasing, no Subtext, weak Subtext, sarcasm masquerading as Irony, switcheroo masquerading as Irony, stereotype masquerading as Archetype, gratuitous Shock, ungrounded Hyperbole (still inside possibility), groaner Wordplay (no Subtext), pun working only one way, dud Reference (in-joke or lazy current event), Madcap with no Subtext, half-baked Parody, Analogy with the wrong half hidden, Misplaced Focus that doesn't actually misplace, Metahumor that just announces itself, two impossible things, funny part not last, comforting the comfortable / afflicting the afflicted, winking at the reader, broken voice, word bloat, typos.
+- "suggestion": one or two specific rewrite directions. Point at the problem clearly.
+- "example_rewrite": one concrete reworded version of the joke that fixes the identified issue.
 
-Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast" or "this is a Switcheroo, not Irony"). No vague praise. No participation trophies.`;
+Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast" or "this is a Switcheroo, not Irony"). No vague praise. No participation trophies.
+
+Return ONLY the JSON array. No markdown fences, no preamble, no explanation outside the JSON.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2128,12 +2132,83 @@ Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast
 
     const data = await response.json();
     const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
-    resultArea.innerHTML = `<div class="critique-result mt-2">${escHtml(text)}</div>`;
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+    let critiques;
+    try {
+      critiques = JSON.parse(cleaned);
+    } catch(parseErr) {
+      resultArea.innerHTML = `<div class="critique-result mt-2">${escHtml(text)}</div>`;
+      btn.disabled = false;
+      btn.textContent = 'Get Critique';
+      return;
+    }
+
+    window._critiqueResults = critiques;
+    let html = '';
+    critiques.forEach((c, i) => {
+      html += `<div class="critique-result mt-2" id="critique-block-${i}">
+        <h3 style="margin-bottom:0.5rem;">Joke ${i+1}</h3>
+        <p style="margin-bottom:0.5rem;"><strong>Original:</strong> ${escHtml(c.original || jokes[i]?.text || '')}</p>
+        <p style="margin-bottom:0.5rem;"><strong>Subtext:</strong> ${escHtml(c.subtext)}</p>
+        <p style="margin-bottom:0.5rem;"><strong>Filters:</strong> ${escHtml(c.filters)}</p>
+        <p style="margin-bottom:0.5rem;"><strong>Working:</strong> ${escHtml(c.working)}</p>
+        <p style="margin-bottom:0.5rem;"><strong>Failing:</strong> ${escHtml(c.failing)}</p>
+        <p style="margin-bottom:0.5rem;"><strong>Suggestion:</strong> ${escHtml(c.suggestion)}</p>
+        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:0.75rem;margin-top:0.5rem;">
+          <p style="margin-bottom:0.5rem;"><strong>Example Rewrite:</strong></p>
+          <p style="font-style:italic;margin-bottom:0.75rem;" id="rewrite-text-${i}">${escHtml(c.example_rewrite)}</p>
+          <button class="small" id="apply-btn-${i}" onclick="applyRewrite(${i})">Apply this rewrite</button>
+        </div>
+      </div>`;
+    });
+    resultArea.innerHTML = html;
   } catch(e) {
     resultArea.innerHTML = `<div class="guardrail mt-2"><p>Critique unavailable right now — assess your own work using the checklist.</p><p style="font-size:0.78rem;margin-top:0.5rem;">${escHtml(e.message)}</p></div>`;
   }
   btn.disabled = false;
   btn.textContent = 'Get Critique';
+}
+
+function applyRewrite(jokeIdx) {
+  const critiques = window._critiqueResults;
+  const source = window._critiqueSource;
+  const rewrite = critiques[jokeIdx].example_rewrite;
+  if (!rewrite) return;
+
+  if (source && source.type === 'clicheFreeJokes') {
+    const all = load('clicheFreeJokes', []);
+    const session = all[source.idx];
+    if (session && session.jokes[jokeIdx]) {
+      session.jokes[jokeIdx].text = rewrite;
+      save('clicheFreeJokes', all);
+    }
+  } else if (source && source.type === 'filterPractice') {
+    const fp = load('filterPractice', {startDate: null, days: []});
+    const dayData = (fp.days || []).find(d => d.day === source.dayNum);
+    if (dayData) {
+      const filledJokes = (dayData.jokes || []).map((j, i) => ({j, i})).filter(x => x.j);
+      if (filledJokes[jokeIdx]) {
+        dayData.jokes[filledJokes[jokeIdx].i] = rewrite;
+        save('filterPractice', fp);
+      }
+    }
+  } else if (source && source.type === 'shortList') {
+    const sl = load('shortList', []);
+    const item = sl.find(s => s.id === source.id);
+    if (item) {
+      item.text = rewrite;
+      save('shortList', sl);
+    }
+  }
+
+  const btn = document.getElementById('apply-btn-' + jokeIdx);
+  btn.textContent = 'Applied';
+  btn.disabled = true;
+  btn.style.color = 'var(--streak)';
+
+  // Update the displayed original
+  const jokes = window._critiqueJokes;
+  if (jokes[jokeIdx]) jokes[jokeIdx].text = rewrite;
 }
 
 // ===========================
