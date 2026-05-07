@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Write Funny — Practice</title>
+<style>
+:root {
+  --bg: #faf9f6;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --border: #e0ddd8;
+  --accent: #2c2c2c;
+  --card-bg: #ffffff;
+  --card-hover: #f5f3ef;
+  --input-bg: #ffffff;
+  --input-border: #d4d0c8;
+  --highlight: #e8e4dc;
+  --streak: #4a7c59;
+  --danger: #8b3a3a;
+  --serif: 'Georgia', 'Times New Roman', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'Menlo', 'Consolas', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+h3 { font-size: 1.2rem; margin-bottom: 0.75rem; }
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+a { color: var(--fg); }
+
+button {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: opacity 0.15s;
+}
+
+button:hover { opacity: 0.85; }
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+button.secondary:hover {
+  background: var(--highlight);
+}
+
+button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+button.small {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.8rem;
+}
+
+input[type="text"], textarea {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--fg);
+  border-radius: 3px;
+  width: 100%;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+
+input[type="text"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.card:hover { background: var(--card-hover); }
+
+.card h3 { margin-bottom: 0.25rem; }
+
+.card .card-desc {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.guardrail {
+  background: var(--highlight);
+  border-left: 3px solid var(--muted);
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.guardrail p { margin-bottom: 0.5rem; }
+.guardrail p:last-child { margin-bottom: 0; }
+
+.back-link {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+}
+
+.back-link:hover { color: var(--fg); }
+
+.back-link::before { content: '\2190\00a0'; }
+
+.stat-bar {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timer {
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  text-align: center;
+  padding: 0.5rem;
+  color: var(--muted);
+}
+
+.timer.active { color: var(--fg); }
+.timer.done { color: var(--streak); }
+
+.word-count {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+.numbered-inputs .input-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.numbered-inputs .input-num {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--muted);
+  min-width: 1.5rem;
+  padding-top: 0.6rem;
+  text-align: right;
+}
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.entry-list .entry {
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+}
+
+.entry-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.entry-text {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.entry-text.expanded {
+  max-height: 100000px;
+}
+
+.checklist label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.checklist input[type="checkbox"] {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin: 1rem 0;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  border-radius: 3px;
+  background: var(--highlight);
+  color: var(--muted);
+}
+
+.calendar-day.has-activity {
+  background: var(--streak);
+  color: #fff;
+}
+
+.calendar-day.today {
+  border: 2px solid var(--accent);
+}
+
+.calendar-day.empty {
+  background: transparent;
+}
+
+.filter-btn {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  margin: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--card-bg);
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--streak);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.critique-result {
+  background: var(--highlight);
+  padding: 1.25rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+  white-space: pre-wrap;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  margin-right: 0.25rem;
+  color: var(--muted);
+}
+
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.gap-sm { display: flex; gap: 0.5rem; }
+.gap-md { display: flex; gap: 1rem; }
+
+.hidden { display: none; }
+
+.loading {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.filter-detail { margin-bottom: 2rem; }
+.filter-detail h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.filter-detail p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+.filter-detail ul { margin-left: 1.5rem; margin-bottom: 0.5rem; font-size: 0.88rem; }
+.filter-detail li { margin-bottom: 0.25rem; }
+.filter-detail .example { font-style: italic; color: var(--muted); }
+
+.tip-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.tip-item h3 span { color: var(--muted); font-size: 0.9rem; }
+.tip-item p { font-size: 0.9rem; color: var(--muted); margin-top: 0.35rem; }
+
+.api-key-section {
+  background: var(--highlight);
+  padding: 1rem 1.25rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.api-key-section input {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .container { padding: 1rem; }
+  h1 { font-size: 1.5rem; }
+  .stat-bar { gap: 1rem; flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ==================== HOME ==================== -->
+<div id="page-home" class="page active">
+  <h1>How to Write Funny</h1>
+  <p class="subtitle">Practice tools based on Scott Dikkers' book</p>
+
+  <div class="stat-bar">
+    <div class="stat">
+      <span class="stat-value" id="home-streak">0</span>
+      <span class="stat-label">Day Streak</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="home-shortlist-count">0</span>
+      <span class="stat-label">Short List</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="home-total-jokes">0</span>
+      <span class="stat-label">Total Jokes</span>
+    </div>
+  </div>
+
+  <div id="home-cards"></div>
+
+  <div class="mt-3" style="text-align:center;">
+    <button class="secondary small" onclick="exportAllData()">Export All Data</button>
+    <button class="secondary small" onclick="document.getElementById('import-file').click()">Import Data</button>
+    <input type="file" id="import-file" accept=".json" class="hidden" onchange="importAllData(event)">
+    <button class="secondary small" onclick="showPage('settings')">Settings</button>
+  </div>
+</div>
+
+<!-- ==================== SETTINGS ==================== -->
+<div id="page-settings" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Settings</h2>
+  <div class="api-key-section">
+    <label style="font-size:0.9rem;">Anthropic API Key (for Critique Mode)</label>
+    <input type="text" id="settings-api-key" placeholder="sk-ant-..." oninput="saveSettings()">
+    <p style="font-size:0.78rem; color:var(--muted); margin-top:0.5rem;">Your key is stored in localStorage on this device only. It is sent directly to the Anthropic API and nowhere else.</p>
+  </div>
+  <button class="danger small" onclick="if(confirm('This will erase all your data. Are you sure?')){localStorage.clear();location.reload();}">Clear All Data</button>
+</div>
+
+<!-- ==================== MORNING PAGES ==================== -->
+<div id="page-morning-pages" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Morning Pages</h2>
+
+  <div class="guardrail">
+    <p>A daily 30-minute exercise from Dorothea Brande / Julia Cameron, adapted by Dikkers for humor writing. You write without stopping for half an hour. No correcting typos. No judging. If you have nothing to write, write "I don't know what to write" until something else surfaces. Gently nudge yourself toward amusing thoughts, but if dark or strange thoughts come instead, write those — that's information about you. The point is to drain the gunk so the good stuff flows. Most of what you write will be garbage. Love it anyway.</p>
+  </div>
+
+  <div class="timer" id="mp-timer">30:00</div>
+  <textarea id="mp-textarea" rows="20" placeholder="Start typing to begin the timer..." style="min-height:400px;"></textarea>
+  <div class="flex-between mt-1">
+    <span class="word-count" id="mp-word-count">0 words</span>
+    <div class="gap-sm">
+      <button class="secondary" id="mp-stop-btn" onclick="stopMorningPages()" disabled>Stop early</button>
+      <button id="mp-done-btn" onclick="saveMorningPages()" disabled>Done</button>
+    </div>
+  </div>
+  <p style="font-size:0.8rem; color:var(--muted); margin-top:1rem;">Don't stop. Don't edit. Don't think. Just keep your fingers moving until the timer beeps.</p>
+</div>
+
+<!-- ==================== REVIEW MORNING PAGES ==================== -->
+<div id="page-review-mp" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Review Morning Pages</h2>
+  <div class="guardrail">
+    <p>Once a week, sift through these for anything that struck you as amusing, interesting, or worth keeping. Most of it is compost. A few lines might be gold. Save those to your Short List.</p>
+  </div>
+  <div id="review-mp-list" class="entry-list"></div>
+</div>
+
+<!-- ==================== CLICHE-FREE JOKES ==================== -->
+<div id="page-cliche-jokes" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Ten Cliche-Free Jokes</h2>
+  <div id="cliche-stage-1">
+    <h3>Stage 1 — Write 10 Jokes</h3>
+    <div class="guardrail">
+      <p>Write 10 one-sentence jokes. The only rule: no cliches.</p>
+      <p>A cliche in humor writing is a joke, topic, or pattern you've heard before. Examples to avoid: airline food, mothers-in-law, "three somethings walk into a bar," "that's what she said," "I could tell you but then I'd have to kill you," "I just threw up in my mouth a little bit," game-show buzzer sounds for wrong answers, the surfer-dude character, white-people-vs-black-people contrasts, "Best. Thing. Ever.", "Welp," "I know, right?", "the Internets," LOL/LMFAO/IMHO as humor, "It's an oxymoron, like Military Intelligence."</p>
+      <p>Only fresh, original observations or unique angles can surprise. Surprise is the one ingredient all humor requires. Without surprise, no laugh.</p>
+    </div>
+    <div class="numbered-inputs" id="cliche-jokes-inputs"></div>
+    <button id="cliche-s1-submit" onclick="submitClicheStage1()" disabled>Submit Jokes</button>
+  </div>
+
+  <div id="cliche-stage-2" class="hidden">
+    <h3>Stage 2 — Identify the Subtext</h3>
+    <div class="guardrail">
+      <p>Subtext is the value judgment or opinion the joke is secretly delivering. It is not the literal text. It is what the reader subconsciously decodes that makes them laugh.</p>
+      <p>State each Subtext as a simple subject-verb-object sentence. It must be irreducible — it cannot itself be a joke or have hidden meaning. It must be a flat, "on the nose" opinion.</p>
+      <p>Examples:</p>
+      <p>Joke: "Mother Teresa Sent To Hell In Wacky Afterlife Mix-Up" — Subtext: <em>Religion's promises about the afterlife are arbitrary.</em></p>
+      <p>Joke: "Alcoholic Father Disappointed In Pothead Son" — Subtext: <em>Hypocrisy is the default mode of parenting.</em></p>
+      <p>Joke: "Don't forget — tomorrow is Bring Your Daughter To Tears Day." — Subtext: <em>Take Your Daughter to Work Day exists because girls still need extra workplace exposure, which is sad.</em></p>
+      <p>If you can't state the Subtext, the joke isn't saying anything yet. Mark it for revision.</p>
+    </div>
+    <div id="cliche-subtext-inputs"></div>
+    <button onclick="submitClicheStage2()">Submit Subtexts</button>
+  </div>
+
+  <div id="cliche-stage-3" class="hidden">
+    <h3>Stage 3 — Write 10 Standalone Subtext Ideas</h3>
+    <div class="guardrail">
+      <p>Now write 10 raw Subtext ideas. These are not jokes. They are flat opinions you actually hold about people, the world, or how things work.</p>
+      <p>Examples: "We're destroying our planet." / "People without a legitimate handicap should not be allowed to ride mobility scooters in the grocery store." / "Most adult friendships are logistical, not emotional." / "Power corrupts." / "People who have kids are selfish."</p>
+      <p>These don't need to be funny. The best Subtext often isn't — it's often sad or uncomfortable. "Comedy equals tragedy plus time" (Steve Allen). The Onion's longtime head writer Todd Hanson called humor "life's nightmare hellscape of unrelenting horror." Don't shy away from dark.</p>
+      <p>Tip #9: Comfort the afflicted, afflict the comfortable. Your Subtext should target power, the status quo, or universal human flaws — not the downtrodden.</p>
+    </div>
+    <div class="numbered-inputs" id="cliche-raw-subtext-inputs"></div>
+    <button onclick="submitClicheStage3()">Submit Subtexts</button>
+  </div>
+
+  <div id="cliche-complete" class="hidden">
+    <h3>Exercise Complete</h3>
+    <div id="cliche-summary"></div>
+  </div>
+</div>
+
+<!-- ==================== FILTER PRACTICE ==================== -->
+<div id="page-filter-practice" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Eleven-Day Funny Filter Practice</h2>
+  <div id="filter-practice-overview"></div>
+  <div id="filter-practice-day" class="hidden"></div>
+</div>
+
+<!-- ==================== JOKE-WRITING METHODS ==================== -->
+<div id="page-methods" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Joke-Writing Methods</h2>
+  <div id="methods-menu">
+    <div class="card" onclick="showMethod('filtering')">
+      <h3>Filtering</h3>
+      <p class="card-desc">Subtext to joke. Start with an opinion, run it through Funny Filters.</p>
+    </div>
+    <div class="card" onclick="showMethod('finessing')">
+      <h3>Finessing</h3>
+      <p class="card-desc">Existing joke to polished joke. Assess and revise ruthlessly.</p>
+    </div>
+    <div class="card" onclick="showMethod('divining')">
+      <h3>Divining</h3>
+      <p class="card-desc">Cold start. Pick a filter, force a joke from nothing.</p>
+    </div>
+  </div>
+  <div id="method-workspace" class="hidden"></div>
+</div>
+
+<!-- ==================== FUNNY FILTERS REFERENCE ==================== -->
+<div id="page-filters-ref" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Funny Filters Reference</h2>
+  <div id="filters-ref-list"></div>
+</div>
+
+<!-- ==================== HUMOR TIPS ==================== -->
+<div id="page-tips" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Humor-Writing Tips</h2>
+  <div id="tips-list"></div>
+</div>
+
+<!-- ==================== SHORT LIST ==================== -->
+<div id="page-shortlist" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Short List</h2>
+  <div class="flex-between mb-2">
+    <input type="text" id="shortlist-search" class="search-bar" placeholder="Search jokes..." oninput="renderShortList()" style="max-width:400px;">
+    <div class="gap-sm">
+      <button class="secondary small" onclick="exportShortList()">Export</button>
+      <button class="small" onclick="addManualShortListItem()">Add Joke</button>
+    </div>
+  </div>
+  <div id="shortlist-filter-bar" class="mb-2"></div>
+  <div id="shortlist-items"></div>
+</div>
+
+<!-- ==================== DAILY CHECKLIST ==================== -->
+<div id="page-checklist" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Daily Checklist</h2>
+  <div id="checklist-content"></div>
+</div>
+
+<!-- ==================== CRITIQUE MODE ==================== -->
+<div id="page-critique" class="page">
+  <a class="back-link" onclick="showPage('home')">Home</a>
+  <h2>Critique Mode</h2>
+  <div id="critique-content"></div>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ===========================
+// DATA LAYER
+// ===========================
+function load(key, fallback) {
+  try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : fallback; }
+  catch(e) { return fallback; }
+}
+function save(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// ===========================
+// FILTERS DATA
+// ===========================
+const FILTERS = [
+  {
+    name: 'Irony', what: 'Extreme opposites. The literal text says the polar opposite of the intended meaning.',
+    how: 'Write the polar opposite of your Subtext, and play it straight — no sarcasm, no winking. Heighten contrast to the maximum.',
+    pitfalls: 'Sarcasm (too winking, not believable). Switcheroo (just different, not opposite). Mild contrast (not pushed to the extreme).',
+    examples: ['"Alcoholic Father Disappointed In Pothead Son" — The Onion','"Cool \'Cybergranny\' Needs Machines To Help Her Live" — The Onion','"Mother Teresa Sent To Hell In Wacky Afterlife Mix-Up" — The Onion','"It\'s Not A Crack House, It\'s A Crack Home" — The Onion'],
+    guardrail: 'Write the polar opposite of your Subtext. Play it straight — no winking, no sarcasm. Heighten the contrast as far as it will go. If your "opposite" is just different rather than truly opposite, it\'s the Ol\' Switcheroo, not Irony.',
+    prompt: 'Think of something you believe is true. Now write the exact opposite as if it were a headline or a statement of fact. Play it completely straight.'
+  },
+  {
+    name: 'Character', what: 'A character with 1-3 clear traits acting on those traits.',
+    how: 'Define the character in one or two trait-words. Have them act in accordance with the trait, or be acted upon in a way that exposes it.',
+    pitfalls: '3D characters with backstories (those are dramatic, not comedic). Stereotypes posing as Archetypes. Tonal mismatch with surrounding material.',
+    archetypes: 'Dummy, Slob, Snob, Know-It-All, Everyman, Manchild, Klutz, Lothario, Nerd, Robot/Straight Man, Naif, Bumbling Authority, Trickster.',
+    examples: ['"I don\'t get no respect at all. The other night I felt like having a drink. I said to the bartender, \'surprise me.\' He showed me a naked picture of my wife." — Rodney Dangerfield','"Philandering String Theorist Can Explain Everything" — The Onion','Ace Ventura — Bumbling Authority as a pet detective','Mr. Peabody — Know-It-All as a dog','Arthur Dent (Hitchhiker\'s Guide) — Everyman in outer space'],
+    guardrail: 'Build a character with 1-3 simple traits, then have them act on those traits. Comedic characters are 2D — don\'t write a backstory. Use an Archetype if possible (Dummy, Trickster, Bumbling Authority, Manchild, Know-It-All, Klutz, Lothario, Nerd, Naif, Slob, Snob, Robot/Straight Man), reinvented via new job, new species, or new environment. Stereotypes are not Archetypes — never use them except to deconstruct.',
+    prompt: 'Pick an Archetype (Dummy, Trickster, Bumbling Authority, Manchild, Know-It-All, Klutz, Lothario, Nerd, Naif, Slob, Snob). Put them in a job, species, or environment we haven\'t seen them in.'
+  },
+  {
+    name: 'Shock', what: 'Sex, swearing, violence, or any overt gross-out.',
+    how: 'In moderation. Always with Subtext. The more shocking, the more astute the Subtext must be. Garnish, not main course.',
+    pitfalls: 'Gratuitous Shock with no Subtext (alienates everyone but 14-year-old boys). Overusing pooping/farting/sex. Mistaking shock for edginess.',
+    examples: ['"You can\'t fight City Hall, but you can goddamn sure blow it up." — George Carlin','"My dick is too aware that your pussy is a chamber of financial ruin." — Louis C.K.','America: The Book\'s naked Supreme Court justices spread (Shock + Subtext: the law\'s authorities are visibly flawed)'],
+    guardrail: 'Sex, swearing, violence, gross-outs. A garnish, not a main course. Always with Subtext. The more shocking the joke, the more astute the Subtext must be. If it\'s gratuitous, it\'s failing.',
+    prompt: 'Pick a Subtext about power, authority, or hypocrisy. Now deliver it using something visceral — sex, violence, body horror — but make the Subtext carry the weight.'
+  },
+  {
+    name: 'Hyperbole', what: 'Exaggeration so absurd it goes beyond the bounds of science or reason.',
+    how: 'Take your Subtext and exaggerate it until it violates physics, biology, or logic. Can exaggerate big, small, positive, or negative.',
+    pitfalls: 'Exaggerating "a lot" but staying within possibility. Using cliched hyperbolic structures.',
+    examples: ['"My parents didn\'t like me. For bathtub toys they gave me a blender and a transistor radio." — Rodney Dangerfield','"The last time I gave a urine sample it had an olive in it." — Rodney Dangerfield','"NRA Calls For Teachers To Keep Loaded Gun Pointed At Class For Entire School Day" — The Onion','"It\'s so cold here in Washington, D.C., the politicians have their hands in their own pockets." — Bob Hope'],
+    guardrail: 'Exaggerate so far past reality that you violate science or reason. Just "a lot" isn\'t enough. Can exaggerate big or small, positive or negative. Start with Subtext and stretch it.',
+    prompt: 'Pick an opinion, then exaggerate past the bounds of physics. Make reality impossible.'
+  },
+  {
+    name: 'Wordplay', what: 'Any use of words outside their standard meanings or function — puns, entendres, made-up words, repetition, sound-play.',
+    how: 'Only in service of astute Subtext. Pure cleverness without Subtext is a groaner.',
+    pitfalls: 'Puns that only work one way. Wordplay for cleverness\'s sake. Avoid alliteration, acronyms, pangrams, mnemonics, Tom Swifties, Wellerisms, typewriter words.',
+    examples: ['"I put a dollar in a change machine. Nothing changed." — George Carlin','"I spilled spot remover on my dog. Now he\'s gone." — Steven Wright','"Echolocation, Echolocation, Echolocation — the 3 most important things in bat real estate." — Scott Dikkers','"Fritolaysia Cuts Off Chiplomatic Relations With Snakistan" — The Onion'],
+    guardrail: 'Puns, entendres, made-up words, repetition, sound-play. Must serve Subtext or it\'s a groaner. Ensure puns work in both meanings, not just one. Avoid alliteration, acronyms, pangrams, mnemonics, Tom Swifties, Wellerisms, typewriter words.',
+    prompt: 'Find a word with a double meaning. Build a sentence where both meanings are active and both serve a Subtext.'
+  },
+  {
+    name: 'Reference', what: 'A relatable observation the reader has experienced, articulated in a way they haven\'t heard before.',
+    how: 'Observe everyday life. Find universal experiences not yet articulated. Aim for grade-A: a fresh observation about the human condition.',
+    pitfalls: 'In-jokes (grade D, narrow audience). Callbacks (grade C, only useful within a longer set). Lazy current-event riffs (grade B). Using Seinfeld\'s "did you ever notice" out loud.',
+    examples: ['"Tip Of Man\'s Tongue Refuses To Relinquish Richard Crenna\'s Name" — The Onion','"Men don\'t care what\'s on TV. They only care what else is on TV." — Jerry Seinfeld','"Ever notice that anyone going slower than you is an idiot, but anyone going faster is a maniac?" — George Carlin'],
+    guardrail: 'A relatable observation. Aim for grade-A: a universal observation never articulated this way before. Avoid in-jokes (grade D) and lazy current-event riffs (grade B). Don\'t use Seinfeld\'s "did you ever notice" intro literally — use it only to get yourself into the right mindset.',
+    prompt: 'Think of something small you do every day that you\'ve never heard anyone else describe. Articulate it.'
+  },
+  {
+    name: 'Madcap', what: 'Literary slapstick — zany words, pratfalls, talking objects, non sequiturs, absurdist nonsense.',
+    how: 'Pair with Subtext. Madcap symbolizes Subtexts like "X is absurd" or "X is lunacy." Works as main thrust and as garnish.',
+    pitfalls: 'Pure silliness with no Subtext (Wackytown — kids only). Cliched props (banana peels, rubber chickens, Groucho glasses).',
+    examples: ['"Secretary Of Agriculture Attends Diplomatic Meeting With Foreign Cabbage" — The Onion','"Racist Figurines March On Washington" — The Onion','Monty Python\'s "Ministry of Silly Walks" (Subtext: government bureaucracy is lunacy)','"My biggest comedy influences are an elderly woman and a recently mopped staircase." — Dan Guterman'],
+    guardrail: 'Literary slapstick — zany words, pratfalls, talking objects, non sequiturs, absurdist nonsense. Without Subtext it\'s just Wackytown. With Subtext (often "X is absurd" or "X is lunacy") it can carry the whole joke. Avoid props that became cliches — banana peels, rubber chickens, Groucho glasses.',
+    prompt: 'Pick something in the real world that strikes you as absurd. Now turn it into a scene with talking objects, pratfalls, or nonsensical actions.'
+  },
+  {
+    name: 'Parody', what: 'Aping another entertainment or information format with absolute verisimilitude.',
+    how: 'Mimic the form down to syllables and punctuation. Mimic form, not content. Don\'t wink. The closer your imitation, the funnier.',
+    pitfalls: 'Half-baked verisimilitude. Winking. Mimicking content instead of form. Choosing a format too obscure for readers to recognize.',
+    examples: ['The Onion parodying AP newswire style in every article','Diary of a Wimpy Kid parodying a child\'s diary, hand-drawn font included','Ian Frazier\'s "Coyote v. Acme" parodying a legal brief'],
+    guardrail: 'Ape another format\'s voice and structure with absolute verisimilitude. Mimic form, not content. Don\'t wink. The joke is the gap between perfect formal mimicry and the absurd content you\'re putting through it.',
+    prompt: 'Pick a format you encounter daily (email, recipe, weather forecast, terms of service). Write something absurd in that format, matching every convention perfectly.'
+  },
+  {
+    name: 'Analogy', what: 'Comparing two disparate things and finding many points of similarity.',
+    how: 'Reveal one half of the analogy overtly. Keep the other half hidden — never state it. Every recognition point the reader catches is a joke beat.',
+    pitfalls: 'Stating the hidden half. Choosing two things too similar (no contrast). Choosing two things with no real overlap (no recognition points).',
+    examples: ['George Orwell\'s Animal Farm (overt: animals on a farm; hidden: the Russian Revolution)','"Al Gore Places Infant Son In Rocket To Escape Dying Planet" — The Onion (overt: Gore-as-Jor-El; hidden: Superman\'s origin)','"Being a screenwriter in Hollywood is like being a eunuch at an orgy." — Albert Brooks','"Trying to skip past the FBI warning on DVDs is the new finding shelter." — Scott Dikkers'],
+    guardrail: 'Compare two disparate things and find as many points of similarity as possible. Reveal one half overtly, keep the other half hidden — never state it. Each recognition point the reader catches is a joke beat.',
+    prompt: 'Pick something in modern life. Find a historical, mythological, or completely unrelated parallel. Write about one while implying the other.'
+  },
+  {
+    name: 'Misplaced Focus', what: 'Pretend obliviousness to the obvious. Focus intently on something small and tangential while ignoring the Elephant in the Room.',
+    how: 'Pick a serious Subtext readers care about. Then deliberately focus on a small, adjacent detail, "missing" the main issue. The reader\'s frustration becomes the laugh.',
+    pitfalls: 'Focusing on the obvious thing instead of adjacent to it. Picking a Subtext too trivial for the indignation to land.',
+    examples: ['Jonathan Swift\'s "A Modest Proposal" (Subtext: Irish child poverty is a tragedy; focus: detailed plan to eat the children)','"Secondhand Smoke Linked To Secondhand Coolness" — The Onion','"Mother of dead teen has no one to update her to the new iOS." — Annie Goodson'],
+    guardrail: 'Pretend obliviousness to something obvious and important. Focus intently on something small and tangential while ignoring the Elephant in the Room. The reader\'s frustration at your "missing the point" is the engine.',
+    prompt: 'Think of a serious issue. Now write about a tiny, irrelevant detail next to it, completely ignoring the elephant in the room.'
+  },
+  {
+    name: 'Metahumor', what: 'Comedy about comedy itself.',
+    how: 'Mock the concept of humor (Type A), deconstruct comedy clinically (Type B), mock respected comedy (Type C), or mock dated comedy (Type D). Antihumor (the absence of expected humor) is a subset.',
+    pitfalls: 'Esoteric — only appeals to comedy nerds unless made accessible. Type C requires comedic confidence to land.',
+    examples: ['"Viagra Giving Hope To Thousands Of Struggling Stand-Up Comedians" — The Onion','"My body has no sexual meaning anymore, but if I can make people laugh with it, at least it\'s being used." — Louis C.K.','"My email was hacked but the guy was funnier so I left it alone." — Albert Brooks','Andy Kaufman reading The Great Gatsby on stage instead of telling jokes (Antihumor)'],
+    guardrail: 'Comedy about comedy. Type A mocks the concept of humor itself; Type B deconstructs comedy clinically; Type C mocks respected comedy; Type D mocks dated comedy. Antihumor (the absence of expected humor) is a subset. Best paired with another filter as garnish.',
+    prompt: 'Write a joke about the act of joke-writing itself. Or write something that deliberately fails to be funny in a way that is itself funny.'
+  }
+];
+
+const TIPS = [
+  {n:1, name:'Concept Is King', text:'The core idea must be funny. Great writing won\'t save a bad concept. A great concept written adequately will succeed. Express the concept in a single line — that\'s the joke, headline, or logline.'},
+  {n:2, name:'Quantity Is the Key to Quality', text:'Pros write hundreds of jokes and select the best. The myth is the genius who cranks one perfect joke; the reality is volume. Throw away the bad ones — readers only see the survivors.'},
+  {n:3, name:'Make It Accessible', text:'Reading is hard; readers are rare. Write to the widest audience. Make it findable and understandable to as many people as possible.'},
+  {n:4, name:'Make It Short', text:'Brevity is wit\'s soul. Cut every word you can. Sometimes cutting one word makes a line twice as funny. Use shorter, simpler words where possible.'},
+  {n:5, name:'Avoid Cliches', text:'Heard the joke before? Don\'t repeat it. Avoid topics joked to death. Comedy cliches evolve; stay current on what\'s now stale.'},
+  {n:6, name:'Proofread', text:'Get spelling, grammar, and syntax right. For important submissions, get help. Equal jokes lose to better-proofed jokes.'},
+  {n:7, name:'Have Something to Say', text:'A writer needs an opinion. Without that, why are you writing? Sift your notebook and Morning Pages until you find something worth communicating.'},
+  {n:8, name:'Know What Joke You\'re Telling, And Be Sure Your Reader Knows', text:'Always control the message via clear, intentional Subtext. Never leave the joke open to interpretation. If you don\'t know what you\'re saying, you have no control over what readers find.'},
+  {n:9, name:'Comfort the Afflicted, Afflict the Comfortable', text:'From journalism, applies to satire. The downtrodden are not legitimate targets. Punch up at status quo, power, authority.'},
+  {n:10, name:'Heighten Contrast', text:'Humor relies on contrast — straight man vs. jokester, ironic opposites, fake world vs. real. Push the contrast to its extreme. Most weak jokes have contrast that wasn\'t pushed far enough.'},
+  {n:11, name:'Use Verisimilitude', text:'When imitating form (a character voice, an advertisement, a senator\'s speech), match the original exactly. Be consistent. Never break voice.'},
+  {n:12, name:'Don\'t Fall in Love', text:'Don\'t get attached to one idea. Pros generate many and discard freely. "Murder your darlings" (Sir Arthur Quiller-Couch).'},
+  {n:13, name:'Put the Funny Part Last', text:'The reveal, the funny word, the punchline — almost always works best at the end of the line. If it\'s at the beginning or middle, try moving it.'},
+  {n:14, name:'There\'s Only One Rule in Comedy', text:'If they laugh, it\'s funny. Don\'t get overwhelmed by the dos and don\'ts. The goal is laughs.'},
+  {n:15, name:'One Impossible Thing at a Time', text:'A joke\'s universe can only contain one "crazy" element. Two impossible things in one joke confuses the reader.'},
+  {n:16, name:'Keep It Simple', text:'One Subtext, one twist, the clearest possible expression. More than that and you\'re likely confusing the reader.'},
+  {n:17, name:'Edgy Comedy', text:'Achieved one of three ways: (a) Shock with astute Subtext in moderation; (b) shrink the "time" in comedy = tragedy + time; (c) appear to violate Tip #9 while actually following it. Movie 43 failed because it had Shock without Subtext.'},
+  {n:18, name:'Ruffle Some Feathers', text:'In satire, if no one is offended, you\'re not doing it right. The best humor has danger to it. When a deserving target gets angry, that\'s a sign of success.'}
+];
+
+// ===========================
+// NAVIGATION
+// ===========================
+const HOME_CARDS = [
+  {id:'morning-pages', title:'Morning Pages', desc:'Write today\'s pages', icon:''},
+  {id:'review-mp', title:'Review Morning Pages', desc:'Read past entries, reflect', icon:''},
+  {id:'cliche-jokes', title:'Ten Cliche-Free Jokes', desc:'Chapter 4 exercise + Chapter 5 Subtext follow-up', icon:''},
+  {id:'filter-practice', title:'Eleven-Day Funny Filter Practice', desc:'One filter per day for 11 days', icon:''},
+  {id:'methods', title:'Joke-Writing Methods', desc:'Filtering, Finessing, Divining', icon:''},
+  {id:'filters-ref', title:'Funny Filters Reference', desc:'Browse all 11 filters with examples', icon:''},
+  {id:'tips', title:'Humor-Writing Tips', desc:'Browse all 18 tips', icon:''},
+  {id:'shortlist', title:'Short List', desc:'Saved jokes you\'re still working on', icon:''},
+  {id:'checklist', title:'Daily Checklist', desc:'Streak tracker for core habits', icon:''},
+];
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) {
+    page.classList.add('active');
+    if (pageInit[id]) pageInit[id]();
+  }
+  window.scrollTo(0, 0);
+}
+
+const pageInit = {};
+
+// ===========================
+// HOME
+// ===========================
+function renderHome() {
+  const container = document.getElementById('home-cards');
+  container.innerHTML = HOME_CARDS.map(c =>
+    `<div class="card" onclick="showPage('${c.id}')"><h3>${c.title}</h3><p class="card-desc">${c.desc}</p></div>`
+  ).join('');
+
+  document.getElementById('home-streak').textContent = calcStreak();
+  const sl = load('shortList', []);
+  document.getElementById('home-shortlist-count').textContent = sl.length;
+
+  let total = 0;
+  const cfj = load('clicheFreeJokes', []);
+  cfj.forEach(s => { total += (s.jokes || []).length; });
+  const fp = load('filterPractice', {days:[]});
+  (fp.days || []).forEach(d => { total += (d.jokes || []).filter(j=>j).length; });
+  const mp = load('methodPractice', {filtering:[],finessing:[],divining:[]});
+  total += (mp.filtering || []).length + (mp.finessing || []).length + (mp.divining || []).length;
+  document.getElementById('home-total-jokes').textContent = total;
+}
+
+function calcStreak() {
+  const log = load('dailyLog', {});
+  let streak = 0;
+  let d = new Date();
+  while(true) {
+    const ds = d.toISOString().slice(0,10);
+    const entry = log[ds];
+    if (entry && (entry.morningPages || entry.jokesWritten > 0)) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else if (streak === 0) {
+      // check if today just hasn't been logged yet — look at yesterday
+      d.setDate(d.getDate() - 1);
+      const ys = d.toISOString().slice(0,10);
+      const ye = log[ys];
+      if (ye && (ye.morningPages || ye.jokesWritten > 0)) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else { break; }
+    } else { break; }
+  }
+  return streak;
+}
+
+function logActivity(type) {
+  const log = load('dailyLog', {});
+  const today = todayStr();
+  if (!log[today]) log[today] = {morningPages:false, notebookReviewed:false, jokesWritten:0, weeklySift:false};
+  if (type === 'morningPages') log[today].morningPages = true;
+  if (type === 'joke') log[today].jokesWritten = (log[today].jokesWritten || 0) + 1;
+  if (type === 'notebook') log[today].notebookReviewed = true;
+  if (type === 'sift') log[today].weeklySift = true;
+  save('dailyLog', log);
+}
+
+// ===========================
+// MORNING PAGES
+// ===========================
+let mpTimer = null;
+let mpStartTime = null;
+let mpSecondsLeft = 1800;
+let mpStarted = false;
+
+pageInit['morning-pages'] = function() {
+  clearInterval(mpTimer);
+  mpTimer = null;
+  mpStarted = false;
+  mpSecondsLeft = 1800;
+  document.getElementById('mp-timer').textContent = '30:00';
+  document.getElementById('mp-timer').className = 'timer';
+  document.getElementById('mp-textarea').value = '';
+  document.getElementById('mp-word-count').textContent = '0 words';
+  document.getElementById('mp-stop-btn').disabled = true;
+  document.getElementById('mp-done-btn').disabled = true;
+};
+
+document.getElementById('mp-textarea').addEventListener('input', function() {
+  if (!mpStarted) {
+    mpStarted = true;
+    mpStartTime = Date.now();
+    document.getElementById('mp-stop-btn').disabled = false;
+    document.getElementById('mp-timer').classList.add('active');
+    mpTimer = setInterval(function() {
+      const elapsed = Math.floor((Date.now() - mpStartTime) / 1000);
+      mpSecondsLeft = Math.max(0, 1800 - elapsed);
+      const m = Math.floor(mpSecondsLeft / 60);
+      const s = mpSecondsLeft % 60;
+      document.getElementById('mp-timer').textContent = m + ':' + String(s).padStart(2,'0');
+      if (mpSecondsLeft <= 0) {
+        clearInterval(mpTimer);
+        document.getElementById('mp-timer').textContent = 'Time';
+        document.getElementById('mp-timer').className = 'timer done';
+        document.getElementById('mp-done-btn').disabled = false;
+      }
+    }, 1000);
+  }
+  const words = this.value.trim().split(/\s+/).filter(w=>w).length;
+  document.getElementById('mp-word-count').textContent = words + ' words';
+});
+
+function stopMorningPages() {
+  clearInterval(mpTimer);
+  document.getElementById('mp-done-btn').disabled = false;
+  document.getElementById('mp-timer').className = 'timer done';
+  document.getElementById('mp-timer').textContent = 'Stopped';
+}
+
+function saveMorningPages() {
+  const text = document.getElementById('mp-textarea').value;
+  if (!text.trim()) return;
+  const words = text.trim().split(/\s+/).filter(w=>w).length;
+  const duration = Date.now() - mpStartTime;
+  const pages = load('morningPages', []);
+  pages.push({date: todayStr(), text, wordCount: words, durationMs: duration, timestamp: Date.now()});
+  save('morningPages', pages);
+  logActivity('morningPages');
+  clearInterval(mpTimer);
+  alert('Morning Pages saved.');
+  showPage('home');
+}
+
+// ===========================
+// REVIEW MORNING PAGES
+// ===========================
+pageInit['review-mp'] = function() {
+  const pages = load('morningPages', []);
+  const container = document.getElementById('review-mp-list');
+  if (!pages.length) {
+    container.innerHTML = '<p style="color:var(--muted)">No Morning Pages yet.</p>';
+    return;
+  }
+  container.innerHTML = pages.slice().reverse().map((p, ri) => {
+    const i = pages.length - 1 - ri;
+    const mins = Math.round(p.durationMs / 60000);
+    return `<div class="entry">
+      <div class="entry-meta flex-between">
+        <span>${p.date} — ${p.wordCount} words, ${mins} min</span>
+        <button class="secondary small" onclick="mineFromMP(${i})">Mine for ideas</button>
+      </div>
+      <div class="entry-text" id="mp-entry-${i}" onclick="this.classList.toggle('expanded')">${escHtml(p.text)}</div>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.25rem;cursor:pointer;" onclick="document.getElementById('mp-entry-${i}').classList.toggle('expanded')">Click to expand/collapse</p>
+    </div>`;
+  }).join('');
+};
+
+function mineFromMP(idx) {
+  const pages = load('morningPages', []);
+  const p = pages[idx];
+  const text = prompt('Paste or type the line you want to save to your Short List:');
+  if (text && text.trim()) {
+    addToShortList(text.trim(), '', [], 'morning pages');
+    alert('Saved to Short List.');
+  }
+}
+
+// ===========================
+// CLICHE-FREE JOKES
+// ===========================
+let clicheSessionJokes = [];
+let clicheSessionSubtexts = [];
+
+pageInit['cliche-jokes'] = function() {
+  clicheSessionJokes = [];
+  clicheSessionSubtexts = [];
+  document.getElementById('cliche-stage-1').classList.remove('hidden');
+  document.getElementById('cliche-stage-2').classList.add('hidden');
+  document.getElementById('cliche-stage-3').classList.add('hidden');
+  document.getElementById('cliche-complete').classList.add('hidden');
+
+  const container = document.getElementById('cliche-jokes-inputs');
+  container.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    container.innerHTML += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="cliche-joke-${i}" oninput="checkClicheS1()"></div>`;
+  }
+  document.getElementById('cliche-s1-submit').disabled = true;
+};
+
+function checkClicheS1() {
+  let allFilled = true;
+  for (let i = 0; i < 10; i++) {
+    if (!document.getElementById('cliche-joke-'+i).value.trim()) { allFilled = false; break; }
+  }
+  document.getElementById('cliche-s1-submit').disabled = !allFilled;
+}
+
+function submitClicheStage1() {
+  clicheSessionJokes = [];
+  for (let i = 0; i < 10; i++) {
+    clicheSessionJokes.push(document.getElementById('cliche-joke-'+i).value.trim());
+  }
+  document.getElementById('cliche-stage-1').classList.add('hidden');
+  document.getElementById('cliche-stage-2').classList.remove('hidden');
+
+  const container = document.getElementById('cliche-subtext-inputs');
+  container.innerHTML = clicheSessionJokes.map((j, i) =>
+    `<div style="margin-bottom:1rem;"><p style="font-size:0.9rem;margin-bottom:0.35rem;"><strong>${i+1}.</strong> ${escHtml(j)}</p><input type="text" id="cliche-subtext-${i}" placeholder="What is this joke really saying?"></div>`
+  ).join('');
+  window.scrollTo(0, 0);
+}
+
+function submitClicheStage2() {
+  clicheSessionSubtexts = [];
+  for (let i = 0; i < 10; i++) {
+    clicheSessionSubtexts.push(document.getElementById('cliche-subtext-'+i).value.trim());
+  }
+  document.getElementById('cliche-stage-2').classList.add('hidden');
+  document.getElementById('cliche-stage-3').classList.remove('hidden');
+
+  const container = document.getElementById('cliche-raw-subtext-inputs');
+  container.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    container.innerHTML += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="cliche-raw-sub-${i}" placeholder="A flat opinion you hold..."></div>`;
+  }
+  window.scrollTo(0, 0);
+}
+
+function submitClicheStage3() {
+  const rawSubtexts = [];
+  for (let i = 0; i < 10; i++) {
+    rawSubtexts.push(document.getElementById('cliche-raw-sub-'+i).value.trim());
+  }
+
+  const jokes = clicheSessionJokes.map((t, i) => ({text: t, subtext: clicheSessionSubtexts[i]}));
+  const entry = {date: todayStr(), jokes, rawSubtexts, timestamp: Date.now()};
+  const all = load('clicheFreeJokes', []);
+  all.push(entry);
+  save('clicheFreeJokes', all);
+
+  jokes.forEach(() => logActivity('joke'));
+
+  document.getElementById('cliche-stage-3').classList.add('hidden');
+  document.getElementById('cliche-complete').classList.remove('hidden');
+
+  let html = '<p style="margin-bottom:1rem;">Your jokes and subtexts have been saved.</p>';
+  jokes.forEach((j, i) => {
+    html += `<div style="margin-bottom:0.75rem;padding:0.75rem;background:var(--highlight);border-radius:3px;">
+      <p style="font-size:0.9rem;"><strong>${i+1}.</strong> ${escHtml(j.text)}</p>
+      <p style="font-size:0.82rem;color:var(--muted);">Subtext: ${escHtml(j.subtext || '(none)')}</p>
+      <button class="secondary small mt-1" onclick="addToShortList('${escAttr(j.text)}','${escAttr(j.subtext)}',[],'cliche-free jokes');this.textContent='Added';this.disabled=true;">Send to Short List</button>
+    </div>`;
+  });
+  html += `<div class="mt-2"><button class="secondary" onclick="openCritique(${JSON.stringify(jokes).split('"').join('&quot;')})">Get Claude's Critique</button></div>`;
+  document.getElementById('cliche-summary').innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+// ===========================
+// FILTER PRACTICE (11-day)
+// ===========================
+pageInit['filter-practice'] = function() {
+  renderFilterPracticeOverview();
+};
+
+function renderFilterPracticeOverview() {
+  const fp = load('filterPractice', {startDate: null, days: []});
+  const overview = document.getElementById('filter-practice-overview');
+  const dayView = document.getElementById('filter-practice-day');
+  dayView.classList.add('hidden');
+  overview.classList.remove('hidden');
+
+  const completedDays = (fp.days || []).filter(d => d.completedAt).length;
+
+  let html = `<div class="progress-bar"><div class="progress-fill" style="width:${(completedDays/11)*100}%"></div></div>`;
+  html += `<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.5rem;">${completedDays} of 11 days complete</p>`;
+
+  FILTERS.forEach((f, i) => {
+    const dayData = (fp.days || []).find(d => d.day === i+1);
+    const done = dayData && dayData.completedAt;
+    const status = done ? '<span style="color:var(--streak);">Complete</span>' : (i === completedDays ? '<strong>Current</strong>' : '');
+    html += `<div class="card" onclick="startFilterDay(${i+1})">
+      <div class="flex-between"><h3>Day ${i+1} — ${f.name}</h3><span style="font-size:0.82rem;">${status}</span></div>
+      <p class="card-desc">${f.what}</p>
+    </div>`;
+  });
+
+  if (completedDays === 11) {
+    html += `<div class="mt-3"><h3>All 11 days complete.</h3><p style="color:var(--muted);font-size:0.9rem;">Review your best jokes in the Short List, or repeat any day above.</p></div>`;
+  }
+
+  overview.innerHTML = html;
+}
+
+function startFilterDay(dayNum) {
+  const filter = FILTERS[dayNum - 1];
+  const fp = load('filterPractice', {startDate: null, days: []});
+  if (!fp.startDate) fp.startDate = todayStr();
+  let dayData = fp.days.find(d => d.day === dayNum);
+
+  const overview = document.getElementById('filter-practice-overview');
+  const dayView = document.getElementById('filter-practice-day');
+  overview.classList.add('hidden');
+  dayView.classList.remove('hidden');
+
+  let html = `<a class="back-link" onclick="renderFilterPracticeOverview()">Back to overview</a>`;
+  html += `<h3>Day ${dayNum} — ${filter.name}</h3>`;
+  html += `<div class="filter-detail">
+    <p><strong>What it is:</strong> ${filter.what}</p>
+    <p><strong>How to use it:</strong> ${filter.how}</p>
+    <p><strong>Common pitfalls:</strong> ${filter.pitfalls}</p>
+    ${filter.archetypes ? `<p><strong>Archetypes:</strong> ${filter.archetypes}</p>` : ''}
+    <p><strong>Examples:</strong></p>
+    <ul>${filter.examples.map(e => `<li class="example">${escHtml(e)}</li>`).join('')}</ul>
+  </div>`;
+  html += `<div class="guardrail"><p>${filter.guardrail}</p></div>`;
+  html += `<div class="numbered-inputs" id="fp-day-inputs">`;
+  for (let i = 0; i < 10; i++) {
+    const existing = dayData && dayData.jokes && dayData.jokes[i] ? dayData.jokes[i] : '';
+    html += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="fp-joke-${i}" value="${escAttr(existing)}"></div>`;
+  }
+  html += `</div>`;
+  html += `<div class="gap-sm mt-2">
+    <button onclick="saveFilterDay(${dayNum})">Save and Complete Day</button>
+    <button class="secondary" onclick="saveFilterDayDraft(${dayNum})">Save Draft</button>
+  </div>`;
+  dayView.innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+function saveFilterDayDraft(dayNum) {
+  const fp = load('filterPractice', {startDate: todayStr(), days: []});
+  let dayData = fp.days.find(d => d.day === dayNum);
+  const jokes = [];
+  for (let i = 0; i < 10; i++) jokes.push(document.getElementById('fp-joke-'+i).value.trim());
+  if (!dayData) { dayData = {day: dayNum, filter: FILTERS[dayNum-1].name, jokes, completedAt: null}; fp.days.push(dayData); }
+  else { dayData.jokes = jokes; }
+  save('filterPractice', fp);
+  alert('Draft saved.');
+}
+
+function saveFilterDay(dayNum) {
+  const fp = load('filterPractice', {startDate: todayStr(), days: []});
+  let dayData = fp.days.find(d => d.day === dayNum);
+  const jokes = [];
+  for (let i = 0; i < 10; i++) jokes.push(document.getElementById('fp-joke-'+i).value.trim());
+  if (!dayData) { dayData = {day: dayNum, filter: FILTERS[dayNum-1].name, jokes, completedAt: todayStr()}; fp.days.push(dayData); }
+  else { dayData.jokes = jokes; dayData.completedAt = todayStr(); }
+  save('filterPractice', fp);
+  jokes.filter(j=>j).forEach(() => logActivity('joke'));
+  renderFilterPracticeOverview();
+}
+
+// ===========================
+// JOKE-WRITING METHODS
+// ===========================
+pageInit['methods'] = function() {
+  document.getElementById('methods-menu').classList.remove('hidden');
+  document.getElementById('method-workspace').classList.add('hidden');
+};
+
+function showMethod(method) {
+  document.getElementById('methods-menu').classList.add('hidden');
+  const ws = document.getElementById('method-workspace');
+  ws.classList.remove('hidden');
+
+  if (method === 'filtering') renderFilteringMethod(ws);
+  else if (method === 'finessing') renderFinessingMethod(ws);
+  else if (method === 'divining') renderDiviningMethod(ws);
+  window.scrollTo(0, 0);
+}
+
+function renderFilteringMethod(ws) {
+  let html = `<a class="back-link" onclick="showPage('methods')">Back to methods</a>`;
+  html += `<h3>Filtering — Subtext to Joke</h3>`;
+  html += `<div class="guardrail"><p>Start with a piece of Subtext (an opinion, observation, or notebook scrap). Run it through one or more Funny Filters. The Filters reshape your raw opinion into something that surprises a reader.</p><p>You're in Clown mode. Generate freely. Don't judge. Quantity is the key to quality (Tip #2).</p></div>`;
+  html += `<div class="mb-2">
+    <label style="font-size:0.85rem;display:block;margin-bottom:0.35rem;">Your Subtext:</label>
+    <input type="text" id="filtering-subtext" placeholder="An opinion, observation, or raw feeling...">
+    <button class="secondary small mt-1" onclick="pickFromShortListForFiltering()">Pick from Short List</button>
+  </div>`;
+  html += `<p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;">Click a filter to write attempts through it:</p>`;
+  html += `<div class="mb-2">${FILTERS.map((f,i) => `<span class="filter-btn" onclick="activateFilterForFiltering(${i})">${f.name}</span>`).join('')}</div>`;
+  html += `<div id="filtering-workspace"></div>`;
+  html += `<div id="filtering-all-attempts" class="mt-3"></div>`;
+  ws.innerHTML = html;
+}
+
+function pickFromShortListForFiltering() {
+  const sl = load('shortList', []);
+  if (!sl.length) { alert('Short List is empty.'); return; }
+  const text = prompt('Enter the joke or Subtext from your Short List to use:\n\n' + sl.map((s,i) => `${i+1}. ${s.text}`).join('\n'));
+  if (text) document.getElementById('filtering-subtext').value = text;
+}
+
+let filteringAttempts = [];
+
+function activateFilterForFiltering(idx) {
+  const f = FILTERS[idx];
+  const workspace = document.getElementById('filtering-workspace');
+  workspace.innerHTML = `<div style="background:var(--highlight);padding:1rem;border-radius:4px;margin-bottom:1rem;">
+    <h3 style="margin-bottom:0.5rem;">${f.name}</h3>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;">${f.prompt}</p>
+    <input type="text" id="filtering-attempt-1" class="mb-1" placeholder="Attempt 1">
+    <input type="text" id="filtering-attempt-2" class="mb-1" placeholder="Attempt 2">
+    <input type="text" id="filtering-attempt-3" placeholder="Attempt 3">
+    <div class="mt-1"><button class="small" onclick="saveFilteringAttempts('${f.name}')">Save Attempts</button></div>
+  </div>`;
+}
+
+function saveFilteringAttempts(filterName) {
+  for (let i = 1; i <= 3; i++) {
+    const v = document.getElementById('filtering-attempt-'+i).value.trim();
+    if (v) {
+      filteringAttempts.push({text: v, filter: filterName, subtext: document.getElementById('filtering-subtext').value.trim()});
+    }
+  }
+  document.getElementById('filtering-workspace').innerHTML = '<p style="color:var(--streak);font-size:0.85rem;">Saved. Pick another filter or review below.</p>';
+
+  const display = document.getElementById('filtering-all-attempts');
+  let html = '<h3>All Attempts</h3>';
+  filteringAttempts.forEach((a, i) => {
+    html += `<div style="padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+      <span class="tag">${a.filter}</span> ${escHtml(a.text)}
+      <button class="secondary small" style="float:right;" onclick="addToShortList('${escAttr(a.text)}','${escAttr(a.subtext)}',['${a.filter}'],'filtering');this.textContent='Added';this.disabled=true;">Short List</button>
+    </div>`;
+  });
+  display.innerHTML = html;
+
+  // Save to method practice
+  const mp = load('methodPractice', {filtering:[],finessing:[],divining:[]});
+  mp.filtering = filteringAttempts.map(a => ({...a, date: todayStr()}));
+  save('methodPractice', mp);
+  filteringAttempts.forEach(() => logActivity('joke'));
+}
+
+function renderFinessingMethod(ws) {
+  let html = `<a class="back-link" onclick="showPage('methods')">Back to methods</a>`;
+  html += `<h3>Finessing — Existing Joke to Polished Joke</h3>`;
+  html += `<div class="guardrail"><p>You have a joke. Now assess it ruthlessly. You're in Editor mode.</p><p>Walk through the checklist below. Be honest. Most jokes need cuts. Some need to die.</p></div>`;
+  html += `<div class="mb-2">
+    <label style="font-size:0.85rem;display:block;margin-bottom:0.35rem;">Your joke:</label>
+    <textarea id="finessing-joke" rows="3" placeholder="Paste or type your joke..."></textarea>
+    <button class="secondary small mt-1" onclick="pickFromShortListForFinessing()">Pick from Short List</button>
+  </div>`;
+  html += `<div class="checklist" id="finessing-checklist">
+    <label><input type="checkbox"> Can I state the Subtext as one irreducible subject-verb-object sentence?</label>
+    <label><input type="checkbox"> Is the contrast heightened to its extreme? (Tip #10)</label>
+    <label><input type="checkbox"> Is the funny part last? (Tip #13)</label>
+    <label><input type="checkbox"> Could any words be cut? (Tip #4)</label>
+    <label><input type="checkbox"> Is there a cliche — joke, phrase, structure, or character? (Tip #5)</label>
+    <label><input type="checkbox"> Could I layer in another Funny Filter as garnish (Shock, Madcap, Wordplay)?</label>
+    <label><input type="checkbox"> Am I winking at the reader, or playing it straight?</label>
+    <label><input type="checkbox"> Is there only one impossible thing? (Tip #15)</label>
+    <label><input type="checkbox"> Am I afflicting the comfortable, not the afflicted? (Tip #9)</label>
+    <label><input type="checkbox"> Spelling, grammar, punctuation? (Tip #6)</label>
+  </div>`;
+  html += `<div class="mt-2">
+    <label style="font-size:0.85rem;display:block;margin-bottom:0.35rem;">Revised version:</label>
+    <textarea id="finessing-revised" rows="3" placeholder="Write the polished version..."></textarea>
+  </div>`;
+  html += `<div class="gap-sm mt-2">
+    <button onclick="saveFinessing()">Save to Short List</button>
+    <button class="secondary" onclick="openCritiqueFromFinessing()">Get Claude's Critique</button>
+  </div>`;
+  html += `<div id="finessing-critique-result"></div>`;
+  ws.innerHTML = html;
+}
+
+function pickFromShortListForFinessing() {
+  const sl = load('shortList', []);
+  if (!sl.length) { alert('Short List is empty.'); return; }
+  const idx = prompt('Pick a joke by number:\n\n' + sl.map((s,i) => `${i+1}. ${s.text}`).join('\n'));
+  if (idx && sl[parseInt(idx)-1]) {
+    document.getElementById('finessing-joke').value = sl[parseInt(idx)-1].text;
+  }
+}
+
+function saveFinessing() {
+  const revised = document.getElementById('finessing-revised').value.trim();
+  const original = document.getElementById('finessing-joke').value.trim();
+  if (!revised) { alert('Write a revised version first.'); return; }
+  addToShortList(revised, '', [], 'finessing (from: ' + original.slice(0,50) + ')');
+  const mp = load('methodPractice', {filtering:[],finessing:[],divining:[]});
+  mp.finessing.push({original, revised, date: todayStr()});
+  save('methodPractice', mp);
+  logActivity('joke');
+  alert('Saved to Short List.');
+}
+
+function openCritiqueFromFinessing() {
+  const joke = document.getElementById('finessing-joke').value.trim();
+  if (!joke) return;
+  openCritique([{text: joke, subtext: ''}]);
+}
+
+function renderDiviningMethod(ws) {
+  let html = `<a class="back-link" onclick="showPage('methods')">Back to methods</a>`;
+  html += `<h3>Divining — Cold Start</h3>`;
+  html += `<div class="guardrail"><p>No notes. No Subtext. Just a Filter and a blank page. Pick a Filter, force a joke. Cycle through all 11 over time.</p><p>This is the hardest method. It's also the one that builds the muscle.</p></div>`;
+  html += `<div class="mb-2"><button onclick="randomDiviningFilter()">Random Filter</button></div>`;
+  html += `<div id="divining-filter-prompt" class="mb-2"></div>`;
+  html += `<div class="numbered-inputs" id="divining-inputs">`;
+  for (let i = 0; i < 5; i++) {
+    html += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="divining-attempt-${i}"></div>`;
+  }
+  html += `</div>`;
+  html += `<div class="gap-sm mt-2">
+    <button onclick="saveDivining()">Save Attempts</button>
+    <button class="secondary" onclick="randomDiviningFilter()">Try Another Filter</button>
+  </div>`;
+  ws.innerHTML = html;
+}
+
+let currentDiviningFilter = null;
+
+function randomDiviningFilter() {
+  const idx = Math.floor(Math.random() * FILTERS.length);
+  currentDiviningFilter = FILTERS[idx];
+  document.getElementById('divining-filter-prompt').innerHTML = `<div style="background:var(--highlight);padding:1rem;border-radius:4px;">
+    <h3 style="margin-bottom:0.35rem;">${currentDiviningFilter.name}</h3>
+    <p style="font-size:0.88rem;color:var(--muted);">${currentDiviningFilter.prompt}</p>
+  </div>`;
+  for (let i = 0; i < 5; i++) document.getElementById('divining-attempt-'+i).value = '';
+}
+
+function saveDivining() {
+  if (!currentDiviningFilter) { alert('Pick a filter first.'); return; }
+  const attempts = [];
+  for (let i = 0; i < 5; i++) {
+    const v = document.getElementById('divining-attempt-'+i).value.trim();
+    if (v) attempts.push(v);
+  }
+  if (!attempts.length) return;
+  const mp = load('methodPractice', {filtering:[],finessing:[],divining:[]});
+  attempts.forEach(a => {
+    mp.divining.push({text: a, filter: currentDiviningFilter.name, date: todayStr()});
+    logActivity('joke');
+  });
+  save('methodPractice', mp);
+  alert('Saved ' + attempts.length + ' attempt(s).');
+  for (let i = 0; i < 5; i++) document.getElementById('divining-attempt-'+i).value = '';
+}
+
+function launchDiviningWithFilter(filterIdx) {
+  showPage('methods');
+  setTimeout(() => {
+    showMethod('divining');
+    currentDiviningFilter = FILTERS[filterIdx];
+    document.getElementById('divining-filter-prompt').innerHTML = `<div style="background:var(--highlight);padding:1rem;border-radius:4px;">
+      <h3 style="margin-bottom:0.35rem;">${currentDiviningFilter.name}</h3>
+      <p style="font-size:0.88rem;color:var(--muted);">${currentDiviningFilter.prompt}</p>
+    </div>`;
+  }, 50);
+}
+
+// ===========================
+// FUNNY FILTERS REFERENCE
+// ===========================
+pageInit['filters-ref'] = function() {
+  const container = document.getElementById('filters-ref-list');
+  container.innerHTML = FILTERS.map((f, i) => `
+    <div class="filter-detail" style="border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+      <h3>${i+1}. ${f.name}</h3>
+      <p><strong>What it is:</strong> ${f.what}</p>
+      <p><strong>How to use it:</strong> ${f.how}</p>
+      <p><strong>Common pitfalls:</strong> ${f.pitfalls}</p>
+      ${f.archetypes ? `<p><strong>Archetypes:</strong> ${f.archetypes}</p>` : ''}
+      <p><strong>Examples:</strong></p>
+      <ul>${f.examples.map(e => `<li class="example">${escHtml(e)}</li>`).join('')}</ul>
+      <button class="secondary small mt-1" onclick="launchDiviningWithFilter(${i})">Practice this filter now</button>
+    </div>
+  `).join('');
+};
+
+// ===========================
+// HUMOR-WRITING TIPS
+// ===========================
+pageInit['tips'] = function() {
+  const container = document.getElementById('tips-list');
+  container.innerHTML = TIPS.map(t => `
+    <div class="tip-item">
+      <h3><span>${t.n}.</span> ${t.name}</h3>
+      <p>${t.text}</p>
+    </div>
+  `).join('');
+};
+
+// ===========================
+// SHORT LIST
+// ===========================
+function addToShortList(text, subtext, filters, source) {
+  const sl = load('shortList', []);
+  sl.push({id: genId(), text, subtext: subtext || '', filters: filters || [], date: todayStr(), source: source || ''});
+  save('shortList', sl);
+}
+
+let shortListFilterActive = '';
+
+pageInit['shortlist'] = function() {
+  shortListFilterActive = '';
+  renderShortList();
+};
+
+function renderShortList() {
+  const sl = load('shortList', []);
+  const search = (document.getElementById('shortlist-search').value || '').toLowerCase();
+  const filtered = sl.filter(item => {
+    if (search && !item.text.toLowerCase().includes(search) && !(item.subtext||'').toLowerCase().includes(search)) return false;
+    if (shortListFilterActive && !(item.filters||[]).includes(shortListFilterActive)) return false;
+    return true;
+  });
+
+  // filter bar
+  const allFilters = [...new Set(sl.flatMap(s => s.filters || []))];
+  document.getElementById('shortlist-filter-bar').innerHTML = allFilters.length ?
+    `<span class="filter-btn ${!shortListFilterActive?'active':''}" onclick="shortListFilterActive='';renderShortList();">All</span>` +
+    allFilters.map(f => `<span class="filter-btn ${shortListFilterActive===f?'active':''}" onclick="shortListFilterActive='${f}';renderShortList();">${f}</span>`).join('') : '';
+
+  const container = document.getElementById('shortlist-items');
+  if (!filtered.length) {
+    container.innerHTML = '<p style="color:var(--muted);">No items.</p>';
+    return;
+  }
+  container.innerHTML = filtered.map(item => `
+    <div style="border-bottom:1px solid var(--border);padding:0.75rem 0;">
+      <p style="font-size:0.9rem;">${escHtml(item.text)}</p>
+      ${item.subtext ? `<p style="font-size:0.82rem;color:var(--muted);">Subtext: ${escHtml(item.subtext)}</p>` : ''}
+      <div style="margin-top:0.35rem;">
+        ${(item.filters||[]).map(f => `<span class="tag">${f}</span>`).join('')}
+        <span style="font-size:0.75rem;color:var(--muted);margin-left:0.5rem;">${item.date} ${item.source ? '(from ' + item.source + ')' : ''}</span>
+      </div>
+      <div class="gap-sm mt-1">
+        <button class="secondary small" onclick="finesseFromShortList('${item.id}')">Finesse this joke</button>
+        <button class="secondary small" onclick="openCritiqueById('${item.id}')">Critique</button>
+        <button class="danger small" onclick="deleteShortListItem('${item.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addManualShortListItem() {
+  const text = prompt('Enter the joke:');
+  if (!text || !text.trim()) return;
+  const subtext = prompt('Enter the Subtext (optional):') || '';
+  addToShortList(text.trim(), subtext.trim(), [], 'manual');
+  renderShortList();
+}
+
+function deleteShortListItem(id) {
+  let sl = load('shortList', []);
+  sl = sl.filter(s => s.id !== id);
+  save('shortList', sl);
+  renderShortList();
+}
+
+function finesseFromShortList(id) {
+  const sl = load('shortList', []);
+  const item = sl.find(s => s.id === id);
+  if (!item) return;
+  showPage('methods');
+  setTimeout(() => {
+    showMethod('finessing');
+    document.getElementById('finessing-joke').value = item.text;
+  }, 50);
+}
+
+function openCritiqueById(id) {
+  const sl = load('shortList', []);
+  const item = sl.find(s => s.id === id);
+  if (item) openCritique([{text: item.text, subtext: item.subtext || ''}]);
+}
+
+function exportShortList() {
+  const sl = load('shortList', []);
+  const text = sl.map((s, i) => `${i+1}. ${s.text}${s.subtext ? '\n   Subtext: ' + s.subtext : ''}${(s.filters||[]).length ? '\n   Filters: ' + s.filters.join(', ') : ''}`).join('\n\n');
+  downloadText('shortlist.txt', text);
+}
+
+// ===========================
+// DAILY CHECKLIST
+// ===========================
+pageInit['checklist'] = function() {
+  const log = load('dailyLog', {});
+  const today = todayStr();
+  const todayData = log[today] || {morningPages:false, notebookReviewed:false, jokesWritten:0, weeklySift:false};
+
+  const streak = calcStreak();
+  const isSunday = new Date().getDay() === 0;
+
+  // Check for 3+ day gap
+  let missedDays = 0;
+  let d = new Date();
+  d.setDate(d.getDate() - 1);
+  while (missedDays < 5) {
+    const ds = d.toISOString().slice(0,10);
+    const entry = log[ds];
+    if (entry && (entry.morningPages || entry.jokesWritten > 0)) break;
+    missedDays++;
+    d.setDate(d.getDate() - 1);
+  }
+
+  let html = `<p style="font-size:1.1rem;font-family:var(--serif);margin-bottom:0.5rem;">${today}</p>`;
+  html += `<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.5rem;">Streak: ${streak} day${streak!==1?'s':''}</p>`;
+
+  if (missedDays >= 3) {
+    html += `<div class="guardrail" style="margin-bottom:1.5rem;"><p>Tip #2: Quantity is the key to quality. Pros write hundreds of jokes and select the best. Pick it back up.</p></div>`;
+  }
+
+  html += `<div class="checklist">
+    <label><input type="checkbox" id="cl-mp" ${todayData.morningPages?'checked':''} onchange="updateChecklist()"> Morning Pages done</label>
+    <label><input type="checkbox" id="cl-nb" ${todayData.notebookReviewed?'checked':''} onchange="updateChecklist()"> Notebook reviewed</label>
+    <label><input type="checkbox" id="cl-joke" ${todayData.jokesWritten>0?'checked':''} onchange="updateChecklist()"> At least one joke written</label>
+    ${isSunday ? `<label><input type="checkbox" id="cl-sift" ${todayData.weeklySift?'checked':''} onchange="updateChecklist()"> Weekly sift completed</label>` : ''}
+  </div>`;
+
+  // 30-day calendar
+  html += `<h3 class="mt-3">Last 30 Days</h3>`;
+  html += `<div class="calendar-grid">`;
+  for (let i = 29; i >= 0; i--) {
+    const cd = new Date();
+    cd.setDate(cd.getDate() - i);
+    const ds = cd.toISOString().slice(0,10);
+    const entry = log[ds];
+    const hasActivity = entry && (entry.morningPages || entry.jokesWritten > 0);
+    const isToday = ds === today;
+    html += `<div class="calendar-day ${hasActivity?'has-activity':''} ${isToday?'today':''}" title="${ds}">${cd.getDate()}</div>`;
+  }
+  html += `</div>`;
+
+  document.getElementById('checklist-content').innerHTML = html;
+};
+
+function updateChecklist() {
+  const log = load('dailyLog', {});
+  const today = todayStr();
+  if (!log[today]) log[today] = {morningPages:false, notebookReviewed:false, jokesWritten:0, weeklySift:false};
+  log[today].morningPages = document.getElementById('cl-mp').checked;
+  log[today].notebookReviewed = document.getElementById('cl-nb').checked;
+  log[today].jokesWritten = document.getElementById('cl-joke').checked ? Math.max(log[today].jokesWritten, 1) : 0;
+  const siftEl = document.getElementById('cl-sift');
+  if (siftEl) log[today].weeklySift = siftEl.checked;
+  save('dailyLog', log);
+}
+
+// ===========================
+// CRITIQUE MODE
+// ===========================
+function openCritique(jokes) {
+  showPage('critique');
+  const container = document.getElementById('critique-content');
+
+  const settings = load('settings', {});
+  if (!settings.claudeApiKey) {
+    container.innerHTML = `<p>To use Critique Mode, add your Anthropic API key in <a style="cursor:pointer;text-decoration:underline;" onclick="showPage('settings')">Settings</a>.</p>
+    <div class="mt-2"><h3>Manual Checklist</h3>
+    <p style="font-size:0.88rem;color:var(--muted);margin-top:0.5rem;">Assess your own work using the Finessing checklist in Joke-Writing Methods.</p></div>`;
+    return;
+  }
+
+  let html = '<h3>Your Jokes</h3>';
+  jokes.forEach((j, i) => {
+    html += `<div style="padding:0.5rem 0;"><strong>${i+1}.</strong> ${escHtml(j.text)}${j.subtext ? ` <span style="color:var(--muted);font-size:0.85rem;">(Subtext: ${escHtml(j.subtext)})</span>` : ''}</div>`;
+  });
+  html += `<button class="mt-2" id="critique-btn" onclick="runCritique()">Get Critique</button>`;
+  html += `<div id="critique-result-area"></div>`;
+  container.innerHTML = html;
+
+  // stash jokes for the API call
+  window._critiqueJokes = jokes;
+}
+
+async function runCritique() {
+  const btn = document.getElementById('critique-btn');
+  btn.disabled = true;
+  btn.textContent = 'Requesting critique...';
+  const resultArea = document.getElementById('critique-result-area');
+  resultArea.innerHTML = '<p class="loading mt-2">Waiting for response...</p>';
+
+  const settings = load('settings', {});
+  const jokes = window._critiqueJokes || [];
+
+  const systemPrompt = `You are a comedy-writing coach trained on Scott Dikkers' How to Write Funny. Critique the user's jokes against the book's principles. Push back hard on weak work — this is what the user explicitly wants.
+
+For each joke, output:
+1. SUBTEXT: state the Subtext as one irreducible subject-verb-object sentence. If you can't, that's the first problem.
+2. FILTERS: name the Funny Filters in play (Irony, Character, Shock, Hyperbole, Wordplay, Reference, Madcap, Parody, Analogy, Misplaced Focus, Metahumor). If zero, that's a problem.
+3. WORKING: what's working briefly.
+4. FAILING: specific failures — cliche topic, cliche phrasing, no Subtext, weak Subtext, sarcasm masquerading as Irony, switcheroo masquerading as Irony, stereotype masquerading as Archetype, gratuitous Shock, ungrounded Hyperbole (still inside possibility), groaner Wordplay (no Subtext), pun working only one way, dud Reference (in-joke or lazy current event), Madcap with no Subtext, half-baked Parody, Analogy with the wrong half hidden, Misplaced Focus that doesn't actually misplace, Metahumor that just announces itself, two impossible things, funny part not last, comforting the comfortable / afflicting the afflicted, winking at the reader, broken voice, word bloat, typos.
+5. SUGGESTION: one or two specific rewrite directions. Don't write the joke for the user — point at the problem.
+
+Be direct. Cite specific principles by name (e.g. "Tip #10 — heighten contrast" or "this is a Switcheroo, not Irony"). No vague praise. No participation trophies.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': settings.claudeApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{
+          role: 'user',
+          content: `Critique these jokes:\n\n${jokes.map((j, i) => `${i+1}. ${j.text}${j.subtext ? '\n   Subtext: ' + j.subtext : ''}`).join('\n\n')}`
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`API error ${response.status}: ${err}`);
+    }
+
+    const data = await response.json();
+    const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+    resultArea.innerHTML = `<div class="critique-result mt-2">${escHtml(text)}</div>`;
+  } catch(e) {
+    resultArea.innerHTML = `<div class="guardrail mt-2"><p>Critique unavailable right now — assess your own work using the checklist.</p><p style="font-size:0.78rem;margin-top:0.5rem;">${escHtml(e.message)}</p></div>`;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Get Critique';
+}
+
+// ===========================
+// SETTINGS
+// ===========================
+pageInit['settings'] = function() {
+  const settings = load('settings', {});
+  document.getElementById('settings-api-key').value = settings.claudeApiKey || '';
+};
+
+function saveSettings() {
+  const settings = load('settings', {});
+  settings.claudeApiKey = document.getElementById('settings-api-key').value.trim();
+  save('settings', settings);
+}
+
+// ===========================
+// EXPORT / IMPORT
+// ===========================
+function exportAllData() {
+  const data = {};
+  ['morningPages','clicheFreeJokes','filterPractice','methodPractice','shortList','dailyLog','settings'].forEach(k => {
+    const v = localStorage.getItem(k);
+    if (v) data[k] = JSON.parse(v);
+  });
+  downloadText('how-to-write-funny-backup.json', JSON.stringify(data, null, 2));
+}
+
+function importAllData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      Object.keys(data).forEach(k => {
+        save(k, data[k]);
+      });
+      alert('Data imported successfully.');
+      location.reload();
+    } catch(err) {
+      alert('Failed to import: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ===========================
+// UTILITIES
+// ===========================
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escAttr(str) {
+  if (!str) return '';
+  return str.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\n/g,' ');
+}
+
+// ===========================
+// INIT
+// ===========================
+renderHome();
+</script>
+
+</body>
+</html>
