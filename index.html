@@ -425,6 +425,63 @@ textarea {
   padding: 0.25rem 0;
   min-height: 1.5rem;
 }
+
+#mine-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+#mine-modal-overlay.active { display: flex; }
+#mine-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+#mine-modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#mine-modal-header h3 { margin: 0; }
+#mine-modal-search {
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+#mine-modal-search input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+#mine-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+#mine-modal-body .mine-line {
+  padding: 0.25rem 0.25rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+#mine-modal-body .mine-line:hover {
+  background: var(--border);
+}
+#mine-modal-body .mine-line.highlight {
+  background: #fff3cd;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -657,6 +714,19 @@ textarea {
 </div>
 
 </div><!-- end container -->
+
+<div id="mine-modal-overlay" onclick="if(event.target===this)closeMineModal()">
+  <div id="mine-modal">
+    <div id="mine-modal-header">
+      <h3>Mine for Ideas</h3>
+      <button class="secondary small" onclick="closeMineModal()">Close</button>
+    </div>
+    <div id="mine-modal-search">
+      <input type="text" id="mine-search-input" placeholder="Search within this entry..." oninput="filterMineModal()">
+    </div>
+    <div id="mine-modal-body"></div>
+  </div>
+</div>
 
 <script>
 // ===========================
@@ -1128,22 +1198,74 @@ pageInit['review-mp'] = function() {
     return `<div class="entry">
       <div class="entry-meta flex-between">
         <span>${p.title ? escHtml(p.title) + ' — ' : ''}${p.date} — ${p.wordCount} words, ${mins} min</span>
-        <button class="secondary small" onclick="mineFromMP(${i})">Mine for ideas</button>
+        <span>
+          <button class="secondary small" onclick="mineFromMP(${i})">Mine for ideas</button>
+          <button class="secondary small" style="margin-left:0.5rem;color:var(--danger,#c0392b)" onclick="deleteMorningPage(${i})">Delete</button>
+        </span>
       </div>
-      <div class="entry-text" id="mp-entry-${i}" onclick="this.classList.toggle('expanded')">${escHtml(p.text)}</div>
-      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.25rem;cursor:pointer;" onclick="document.getElementById('mp-entry-${i}').classList.toggle('expanded')">Click to expand/collapse</p>
     </div>`;
   }).join('');
 };
 
+let mineModalLines = [];
+
 function mineFromMP(idx) {
   const pages = load('morningPages', []);
   const p = pages[idx];
-  const text = prompt('Paste or type the line you want to save to your Short List:');
-  if (text && text.trim()) {
-    addToShortList(text.trim(), '', [], 'morning pages');
-    alert('Saved to Short List.');
-  }
+  const body = document.getElementById('mine-modal-body');
+  mineModalLines = p.text.split('\n');
+  renderMineLines(mineModalLines);
+  document.getElementById('mine-search-input').value = '';
+  document.getElementById('mine-modal-overlay').classList.add('active');
+}
+
+function renderMineLines(lines) {
+  const body = document.getElementById('mine-modal-body');
+  body.innerHTML = lines.map((line, i) => {
+    if (!line.trim()) return `<div class="mine-line">&nbsp;</div>`;
+    return `<div class="mine-line" onclick="saveMineLine(this)" title="Click to save to Short List">${escHtml(line)}</div>`;
+  }).join('');
+}
+
+function filterMineModal() {
+  const q = document.getElementById('mine-search-input').value.toLowerCase();
+  const body = document.getElementById('mine-modal-body');
+  const divs = body.querySelectorAll('.mine-line');
+  divs.forEach(div => {
+    const text = div.textContent;
+    if (!q) {
+      div.classList.remove('highlight');
+      div.style.display = '';
+    } else if (text.toLowerCase().includes(q)) {
+      div.classList.add('highlight');
+      div.style.display = '';
+    } else {
+      div.classList.remove('highlight');
+      div.style.display = 'none';
+    }
+  });
+}
+
+function saveMineLine(el) {
+  const text = el.textContent.trim();
+  if (!text) return;
+  addToShortList(text, '', [], 'morning pages');
+  el.style.background = '#d4edda';
+  el.style.cursor = 'default';
+  el.onclick = null;
+  el.title = 'Saved';
+}
+
+function closeMineModal() {
+  document.getElementById('mine-modal-overlay').classList.remove('active');
+}
+
+function deleteMorningPage(idx) {
+  if (!confirm('Delete this Morning Pages entry? This cannot be undone.')) return;
+  const pages = load('morningPages', []);
+  pages.splice(idx, 1);
+  save('morningPages', pages);
+  pageInit['review-mp']();
 }
 
 // ===========================
