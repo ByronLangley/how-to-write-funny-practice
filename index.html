@@ -1287,6 +1287,7 @@ pageInit['review-mp'] = function() {
         <span style="cursor:pointer;" onclick="viewMorningPage(${i})">${p.title ? escHtml(p.title) + ' — ' : ''}${p.date} — ${p.wordCount} words, ${mins} min</span>
         <span>
           <button class="secondary small" onclick="mineFromMP(${i})">Mine for ideas</button>
+          <button class="secondary small" style="margin-left:0.5rem;" onclick="critiqueMP(${i})">Critique</button>
           <button class="secondary small" style="margin-left:0.5rem;color:var(--danger,#c0392b)" onclick="deleteMorningPage(${i})">Delete</button>
         </span>
       </div>
@@ -1415,7 +1416,10 @@ pageInit['cliche-jokes'] = function() {
     html += `<div class="entry" style="border-bottom:1px solid var(--border);padding:1rem 0;">
       <div class="entry-meta flex-between">
         <span style="cursor:pointer;" onclick="viewClicheSession(${si})"><strong>${label}</strong> — ${(session.jokes||[]).length} jokes</span>
-        <button class="secondary small" style="color:var(--danger,#c0392b)" onclick="deleteClicheSession(${si})">Delete</button>
+        <span>
+          <button class="secondary small" onclick="critiqueClicheSession(${si})">Critique</button>
+          <button class="secondary small" style="margin-left:0.5rem;color:var(--danger,#c0392b)" onclick="deleteClicheSession(${si})">Delete</button>
+        </span>
       </div>
     </div>`;
   });
@@ -1545,7 +1549,7 @@ function renderFilterPracticeOverview() {
     const dayData = (fp.days || []).find(d => d.day === i+1);
     const done = dayData && dayData.completedAt;
     const titleLabel = done && dayData.title ? escHtml(dayData.title) + ' — ' : '';
-    const status = done ? `<span style="font-size:0.82rem;color:var(--streak);cursor:pointer;" onclick="event.stopPropagation();viewFilterDay(${i+1})">View session</span>` : (i === completedDays ? '<strong style="font-size:0.82rem;">Current</strong>' : '');
+    const status = done ? `<span style="font-size:0.82rem;cursor:pointer;" onclick="event.stopPropagation();viewFilterDay(${i+1})"><span style="color:var(--streak);">View</span> · <span onclick="event.stopPropagation();critiqueFilterDay(${i+1})">Critique</span></span>` : (i === completedDays ? '<strong style="font-size:0.82rem;">Current</strong>' : '');
     html += `<div class="card" onclick="startFilterDay(${i+1})">
       <div class="flex-between"><h3>Day ${i+1} — ${titleLabel}${f.name}</h3>${status}</div>
       <p class="card-desc">${f.what}</p>
