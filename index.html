@@ -639,7 +639,7 @@ textarea {
       <p>Only fresh, original observations or unique angles can surprise. Surprise is the one ingredient all humor requires. Without surprise, no laugh.</p>
     </div>
     <div class="numbered-inputs" id="cliche-jokes-inputs"></div>
-    <button id="cliche-s1-submit" onclick="submitClicheStage1()" disabled>Submit Jokes</button>
+    <button id="cliche-s1-submit" onclick="submitClicheStage1()">Submit Jokes</button>
   </div>
 
   <div id="cliche-stage-2" class="hidden">
@@ -1351,9 +1351,8 @@ pageInit['cliche-jokes'] = function() {
   const container = document.getElementById('cliche-jokes-inputs');
   container.innerHTML = '';
   for (let i = 0; i < 10; i++) {
-    container.innerHTML += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="cliche-joke-${i}" oninput="checkClicheS1()"></div>`;
+    container.innerHTML += `<div class="input-row"><span class="input-num">${i+1}.</span><input type="text" id="cliche-joke-${i}"></div>`;
   }
-  document.getElementById('cliche-s1-submit').disabled = true;
 
   // Render past sessions
   const all = load('clicheFreeJokes', []);
@@ -1372,14 +1371,6 @@ pageInit['cliche-jokes'] = function() {
   });
   historyEl.innerHTML = html;
 };
-
-function checkClicheS1() {
-  let allFilled = true;
-  for (let i = 0; i < 10; i++) {
-    if (!document.getElementById('cliche-joke-'+i).value.trim()) { allFilled = false; break; }
-  }
-  document.getElementById('cliche-s1-submit').disabled = !allFilled;
-}
 
 function viewClicheSession(idx) {
   const all = load('clicheFreeJokes', []);
@@ -1413,8 +1404,10 @@ function deleteClicheSession(idx) {
 function submitClicheStage1() {
   clicheSessionJokes = [];
   for (let i = 0; i < 10; i++) {
-    clicheSessionJokes.push(document.getElementById('cliche-joke-'+i).value.trim());
+    const v = document.getElementById('cliche-joke-'+i).value.trim();
+    if (v) clicheSessionJokes.push(v);
   }
+  if (!clicheSessionJokes.length) { alert('Write at least one joke before submitting.'); return; }
   document.getElementById('cliche-stage-1').classList.add('hidden');
   document.getElementById('cliche-stage-2').classList.remove('hidden');
 
@@ -1427,7 +1420,7 @@ function submitClicheStage1() {
 
 function submitClicheStage2() {
   clicheSessionSubtexts = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < clicheSessionJokes.length; i++) {
     clicheSessionSubtexts.push(document.getElementById('cliche-subtext-'+i).value.trim());
   }
   document.getElementById('cliche-stage-2').classList.add('hidden');
